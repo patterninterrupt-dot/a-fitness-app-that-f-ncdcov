@@ -89,10 +89,10 @@ export function registerExerciseRoutes(app: App) {
     return exercises;
   });
 
-  // GET /api/exercises/:type/:category/:duration - Get random exercises filtered
+  // GET /api/exercises/:type/:category/:duration - Get exercises matched to duration
   app.fastify.get('/api/exercises/:type/:category/:duration', {
     schema: {
-      description: 'Get 6 random exercises for a workout',
+      description: 'Get exercises for a workout matched to selected duration',
       tags: ['exercises'],
       params: {
         type: 'object',
@@ -105,20 +105,28 @@ export function registerExerciseRoutes(app: App) {
       },
       response: {
         200: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              id: { type: 'string', format: 'uuid' },
-              name: { type: 'string' },
-              type: { type: 'string' },
-              category: { type: 'string' },
-              description: { type: 'string' },
-              reps: { type: ['string', 'null'] },
-              sets: { type: ['string', 'null'] },
-              duration: { type: ['string', 'null'] },
-              videoUrl: { type: ['string', 'null'] },
+          type: 'object',
+          properties: {
+            exercises: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string', format: 'uuid' },
+                  name: { type: 'string' },
+                  type: { type: 'string' },
+                  category: { type: 'string' },
+                  description: { type: 'string' },
+                  reps: { type: ['string', 'null'] },
+                  sets: { type: ['string', 'null'] },
+                  duration: { type: ['string', 'null'] },
+                  videoUrl: { type: ['string', 'null'] },
+                  estimatedMinutes: { type: 'number' },
+                },
+              },
             },
+            totalEstimatedMinutes: { type: 'number' },
+            rounds: { type: 'number' },
           },
         },
         400: {
@@ -131,8 +139,9 @@ export function registerExerciseRoutes(app: App) {
     },
   }, async (request: FastifyRequest<{ Params: { type: string; category: string; duration: string } }>, reply: FastifyReply) => {
     const { type, category, duration } = request.params;
+    const durationMinutes = parseInt(duration, 10);
 
-    app.logger.info({ type, category, duration }, 'Fetching random exercises');
+    app.logger.info({ type, category, durationMinutes }, 'Fetching exercises for duration');
 
     try {
       const exercises = await app.db
@@ -148,14 +157,68 @@ export function registerExerciseRoutes(app: App) {
         return reply.status(400).send({ error: 'No exercises found for the specified filters' });
       }
 
-      // Shuffle and pick 6 random exercises
-      const shuffled = exercises.sort(() => Math.random() - 0.5);
-      const selected = shuffled.slice(0, 6);
+      let selectedExercises: typeof exercises;
+      let estimatedMinutes: number;
+      let rounds = 1;
 
-      app.logger.info({ count: selected.length, type, category }, 'Random exercises retrieved successfully');
-      return selected;
+      if (type === 'home') {
+        // For home/circuit workouts: each exercise is 30s, with 10s rest = 40s per exercise
+        // Max 6 exercises per circuit, can do multiple rounds
+        const exerciseTimeWithRest = 40; // 30s exercise + 10s rest
+        const maxExercisesPerRound = 6;
+        const restBetweenRounds = 60; // 1 minute rest between rounds
+
+        // Shuffle and pick up to 6 random exercises
+        const shuffled = exercises.sort(() => Math.random() - 0.5);
+        selectedExercises = shuffled.slice(0, Math.min(6, shuffled.length));
+
+        // Calculate how many rounds fit in the duration
+        const totalTimePerRound = (selectedExercises.length * exerciseTimeWithRest) / 60; // convert to minutes
+        const timeWithRestBetweenRounds = totalTimePerRound + (restBetweenRounds / 60);
+        rounds = Math.max(1, Math.floor(durationMinutes / timeWithRestBetweenRounds));
+
+        estimatedMinutes = Math.round(totalTimePerRound * rounds);
+      } else {
+        // For gym workouts: estimate 4-5 minutes per exercise
+        // Select appropriate number of exercises based on duration
+        let exerciseCount: number;
+        if (durationMinutes === 30) {
+          exerciseCount = 6;
+          estimatedMinutes = 30;
+        } else if (durationMinutes === 45) {
+          exerciseCount = 9;
+          estimatedMinutes = 45;
+        } else if (durationMinutes === 60) {
+          exerciseCount = 12;
+          estimatedMinutes = 60;
+        } else {
+          // 90 minutes
+          exerciseCount = 18;
+          estimatedMinutes = 90;
+        }
+
+        const shuffled = exercises.sort(() => Math.random() - 0.5);
+        selectedExercises = shuffled.slice(0, Math.min(exerciseCount, shuffled.length));
+      }
+
+      // Add estimated minutes per exercise
+      const exercisesWithTiming = selectedExercises.map((ex) => ({
+        ...ex,
+        estimatedMinutes: type === 'home' ? 0.67 : Math.round(estimatedMinutes / selectedExercises.length),
+      }));
+
+      app.logger.info(
+        { count: selectedExercises.length, type, category, durationMinutes, estimatedMinutes, rounds },
+        'Exercises retrieved successfully'
+      );
+
+      return {
+        exercises: exercisesWithTiming,
+        totalEstimatedMinutes: estimatedMinutes,
+        rounds,
+      };
     } catch (error) {
-      app.logger.error({ err: error, type, category }, 'Failed to fetch exercises');
+      app.logger.error({ err: error, type, category, durationMinutes }, 'Failed to fetch exercises');
       throw error;
     }
   });

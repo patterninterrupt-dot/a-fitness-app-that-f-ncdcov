@@ -36,15 +36,19 @@ describe("API Integration Tests", () => {
       }
     });
 
-    test("GET /api/exercises/{type}/{category}/{duration} - Get random exercises for valid params", async () => {
+    test("GET /api/exercises/{type}/{category}/{duration} - Get exercises for valid params", async () => {
       const res = await api("/api/exercises/home/upper/30");
       await expectStatus(res, 200);
-      const exercises = await res.json();
-      expect(Array.isArray(exercises)).toBe(true);
-      expect(exercises.length).toBeLessThanOrEqual(6);
-      if (exercises.length > 0) {
-        expect(exercises[0]).toHaveProperty("id");
-        expect(exercises[0]).toHaveProperty("name");
+      const data = await res.json();
+      expect(data).toHaveProperty("exercises");
+      expect(Array.isArray(data.exercises)).toBe(true);
+      expect(data).toHaveProperty("totalEstimatedMinutes");
+      expect(data).toHaveProperty("rounds");
+      expect(typeof data.totalEstimatedMinutes).toBe("number");
+      expect(typeof data.rounds).toBe("number");
+      if (data.exercises.length > 0) {
+        expect(data.exercises[0]).toHaveProperty("id");
+        expect(data.exercises[0]).toHaveProperty("name");
       }
     });
 
@@ -72,22 +76,34 @@ describe("API Integration Tests", () => {
     test("GET /api/exercises/{type}/{category}/{duration} - Gym/Lower/60", async () => {
       const res = await api("/api/exercises/gym/lower/60");
       await expectStatus(res, 200);
-      const exercises = await res.json();
-      expect(Array.isArray(exercises)).toBe(true);
+      const data = await res.json();
+      expect(data).toHaveProperty("exercises");
+      expect(Array.isArray(data.exercises)).toBe(true);
     });
 
     test("GET /api/exercises/{type}/{category}/{duration} - Home/Conditioning/45", async () => {
       const res = await api("/api/exercises/home/conditioning/45");
       await expectStatus(res, 200);
-      const exercises = await res.json();
-      expect(Array.isArray(exercises)).toBe(true);
+      const data = await res.json();
+      expect(data).toHaveProperty("exercises");
+      expect(Array.isArray(data.exercises)).toBe(true);
     });
 
     test("GET /api/exercises/{type}/{category}/{duration} - Gym/Upper/90", async () => {
       const res = await api("/api/exercises/gym/upper/90");
       await expectStatus(res, 200);
-      const exercises = await res.json();
-      expect(Array.isArray(exercises)).toBe(true);
+      const data = await res.json();
+      expect(data).toHaveProperty("exercises");
+      expect(Array.isArray(data.exercises)).toBe(true);
+    });
+
+    test("GET /api/exercises/{type}/{category}/{duration} - Gym/Conditioning/60", async () => {
+      const res = await api("/api/exercises/gym/conditioning/60");
+      await expectStatus(res, 200);
+      const data = await res.json();
+      expect(data).toHaveProperty("exercises");
+      expect(data).toHaveProperty("totalEstimatedMinutes");
+      expect(data).toHaveProperty("rounds");
     });
   });
 
@@ -185,6 +201,22 @@ describe("API Integration Tests", () => {
       expect(data.workout.category).toBe("conditioning");
     });
 
+    test("POST /api/workouts - Create 90-minute workout", async () => {
+      const res = await authenticatedApi("/api/workouts", authToken, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "gym",
+          duration: 90,
+          category: "upper",
+          completedAt: new Date().toISOString(),
+        }),
+      });
+      await expectStatus(res, 201);
+      const data = await res.json();
+      expect(data.workout.duration).toBe(90);
+    });
+
     test("GET /api/workouts - Get workout history without auth", async () => {
       const res = await api("/api/workouts");
       await expectStatus(res, 401);
@@ -197,8 +229,8 @@ describe("API Integration Tests", () => {
       await expectStatus(res, 200);
       const workouts = await res.json();
       expect(Array.isArray(workouts)).toBe(true);
-      // Should have at least 3 workouts from above tests
-      expect(workouts.length).toBeGreaterThanOrEqual(3);
+      // Should have at least 4 workouts from above tests
+      expect(workouts.length).toBeGreaterThanOrEqual(4);
       if (workouts.length > 0) {
         expect(workouts[0]).toHaveProperty("id");
         expect(workouts[0]).toHaveProperty("type");
@@ -264,10 +296,10 @@ describe("API Integration Tests", () => {
       expect(typeof stats.currentStreak).toBe("number");
       expect(typeof stats.longestStreak).toBe("number");
       expect(typeof stats.totalMinutes).toBe("number");
-      // Should have 3+ workouts from above
-      expect(stats.totalWorkouts).toBeGreaterThanOrEqual(3);
-      // Total minutes should be at least 30+60+45=135
-      expect(stats.totalMinutes).toBeGreaterThanOrEqual(135);
+      // Should have 4+ workouts from above
+      expect(stats.totalWorkouts).toBeGreaterThanOrEqual(4);
+      // Total minutes should be at least 30+60+45+90=225
+      expect(stats.totalMinutes).toBeGreaterThanOrEqual(225);
     });
   });
 });

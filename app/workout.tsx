@@ -27,6 +27,13 @@ interface Exercise {
   sets?: string | null;
   duration?: string | null;
   videoUrl?: string | null;
+  estimatedMinutes?: number;
+}
+
+interface WorkoutResponse {
+  exercises: Exercise[];
+  totalEstimatedMinutes: number;
+  rounds?: number;
 }
 
 function getEmbedUrl(videoUrl: string): string {
@@ -51,6 +58,8 @@ export default function WorkoutScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
   const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [totalEstimatedMinutes, setTotalEstimatedMinutes] = useState<number>(0);
+  const [rounds, setRounds] = useState<number | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [completedExercises, setCompletedExercises] = useState<Set<string>>(new Set());
   const [completing, setCompleting] = useState(false);
@@ -74,9 +83,37 @@ export default function WorkoutScreen() {
     try {
       setLoading(true);
       console.log(`[API] Requesting /api/exercises/${workoutType}/${workoutCategory}/${workoutDuration}`);
-      const data = await apiGet<Exercise[]>(`/api/exercises/${workoutType}/${workoutCategory}/${workoutDuration}`);
-      setExercises(data);
-      console.log('WorkoutScreen: Loaded exercises', data.length);
+      const raw = await apiGet<WorkoutResponse | Exercise[]>(`/api/exercises/${workoutType}/${workoutCategory}/${workoutDuration}`);
+
+      // Handle both new format { exercises, totalEstimatedMinutes, rounds }
+      // and legacy format (plain array) for backward compatibility
+      let exerciseList: Exercise[];
+      let totalMinutes: number;
+      let roundsCount: number | undefined;
+
+      if (Array.isArray(raw)) {
+        // Legacy format: plain array of exercises
+        console.log('WorkoutScreen: Received legacy array format, adapting to new format');
+        exerciseList = raw as Exercise[];
+        // Estimate total time based on workout type and duration param
+        totalMinutes = parseInt(workoutDuration, 10);
+        roundsCount = undefined;
+      } else {
+        // New format: { exercises, totalEstimatedMinutes, rounds }
+        const data = raw as WorkoutResponse;
+        exerciseList = data.exercises;
+        totalMinutes = data.totalEstimatedMinutes;
+        roundsCount = data.rounds;
+      }
+
+      setExercises(exerciseList);
+      setTotalEstimatedMinutes(totalMinutes);
+      setRounds(roundsCount);
+      console.log('WorkoutScreen: Loaded exercises', {
+        count: exerciseList.length,
+        totalMinutes,
+        rounds: roundsCount,
+      });
     } catch (error) {
       console.error('WorkoutScreen: Error loading exercises', error);
       setErrorModal({ visible: true, message: 'Failed to load exercises. Please try again.' });
@@ -272,6 +309,17 @@ export default function WorkoutScreen() {
             </View>
           </View>
 
+          {/* Timing Info */}
+          {totalEstimatedMinutes > 0 && (
+            <View style={styles.timingCard}>
+              <Text style={styles.timingTitle}>Workout Duration</Text>
+              <Text style={styles.timingValue}>~{totalEstimatedMinutes} minutes</Text>
+              {rounds && rounds > 1 && (
+                <Text style={styles.timingRounds}>Complete {rounds} rounds of the circuit</Text>
+              )}
+            </View>
+          )}
+
           {/* Progress */}
           <View style={styles.progressCard}>
             <Text style={styles.progressTitle}>Progress</Text>
@@ -295,6 +343,9 @@ export default function WorkoutScreen() {
               ? `${exercise.sets} × ${exercise.reps}`
               : exercise.duration || '';
             const hasVideo = !!exercise.videoUrl;
+            const estimatedTime = exercise.estimatedMinutes
+              ? `~${exercise.estimatedMinutes} min`
+              : '';
             
             return (
               <TouchableOpacity
@@ -334,6 +385,7 @@ export default function WorkoutScreen() {
                         {exercise.name}
                       </Text>
                       {exerciseInfo ? <Text style={styles.exerciseDetail}>{exerciseInfo}</Text> : null}
+                      {estimatedTime ? <Text style={styles.exerciseTime}>{estimatedTime}</Text> : null}
                     </View>
                   </View>
                   <View style={styles.exerciseActions}>
@@ -479,6 +531,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textSecondary,
   },
+  timingCard: {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 24,
+    borderWidth: 2,
+    borderColor: colors.primary,
+  },
+  timingTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textSecondary,
+    marginBottom: 8,
+  },
+  timingValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.primary,
+    marginBottom: 4,
+  },
+  timingRounds: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    fontStyle: 'italic',
+  },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -540,6 +617,12 @@ const styles = StyleSheet.create({
   exerciseDetail: {
     fontSize: 12,
     color: colors.textSecondary,
+  },
+  exerciseTime: {
+    fontSize: 11,
+    color: colors.primary,
+    fontWeight: '600',
+    marginTop: 2,
   },
   checkbox: {
     width: 28,

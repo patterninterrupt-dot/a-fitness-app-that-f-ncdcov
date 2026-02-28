@@ -1,25 +1,25 @@
 
 import { StyleSheet } from 'react-native';
 
-// Motivational fitness color palette - energetic and empowering
+// Pattern Interrupt Training brand colors - pink/magenta and black
 export const colors = {
-  // Light theme
-  background: '#FFFFFF',
+  // Light theme - Pattern Interrupt Training brand
+  background: '#F5F5F5',
   text: '#1A1A1A',
   textSecondary: '#6B7280',
-  primary: '#FF6B35', // Energetic orange
-  secondary: '#4ECDC4', // Motivational teal
-  accent: '#FFE66D', // Bright yellow
-  card: '#F9FAFB',
-  highlight: '#FEF3C7',
+  primary: '#D91B7C', // Magenta/Pink from logo
+  secondary: '#1A1A1A', // Black from logo
+  accent: '#FF4DA6', // Lighter pink accent
+  card: '#FFFFFF',
+  highlight: '#FFE5F3',
   border: '#E5E7EB',
   success: '#10B981',
   
   // Dark theme
-  darkBackground: '#0F172A',
+  darkBackground: '#0F0F0F',
   darkText: '#F1F5F9',
   darkTextSecondary: '#94A3B8',
-  darkCard: '#1E293B',
+  darkCard: '#1E1E1E',
   darkBorder: '#334155',
 };
 

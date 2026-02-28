@@ -6,6 +6,8 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
+  Image,
+  ImageSourcePropType,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/styles/commonStyles';
@@ -15,6 +17,13 @@ import { useRouter } from 'expo-router';
 type WorkoutType = 'home' | 'gym';
 type WorkoutCategory = 'upper' | 'lower' | 'conditioning';
 type WorkoutDuration = 30 | 45 | 60 | 90;
+
+// Helper to resolve image sources (handles both local require() and remote URLs)
+function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
+  if (!source) return { uri: '' };
+  if (typeof source === 'string') return { uri: source };
+  return source as ImageSourcePropType;
+}
 
 export default function HomeScreen() {
   console.log('HomeScreen (iOS): Rendering workout selection screen');
@@ -30,7 +39,6 @@ export default function HomeScreen() {
       category: selectedCategory,
       duration: selectedDuration,
     });
-    // TODO: Backend Integration - GET /api/exercises/:type/:category/:duration to fetch workout exercises
     router.push(`/workout?type=${selectedType}&category=${selectedCategory}&duration=${selectedDuration}`);
   };
 
@@ -41,7 +49,15 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-        {/* Header */}
+        {/* Logo and Header */}
+        <View style={styles.logoContainer}>
+          <Image
+            source={resolveImageSource(require('@/assets/images/73c0c96e-8497-4bac-8c89-5decec12a3cf.jpeg'))}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </View>
+
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Ready is an Action</Text>
           <Text style={styles.headerSubtitle}>Not a feeling. Choose your workout and start building consistency.</Text>
@@ -257,27 +273,36 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 100,
   },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 24,
+    paddingTop: 8,
+  },
+  logo: {
+    width: 200,
+    height: 120,
+  },
   header: {
     marginBottom: 32,
   },
   headerTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: colors.text,
+    color: colors.secondary,
     marginBottom: 8,
   },
   headerSubtitle: {
-    fontSize: 16,
+    fontSize: 15,
     color: colors.textSecondary,
-    lineHeight: 24,
+    lineHeight: 22,
   },
   section: {
     marginBottom: 28,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: colors.text,
+    fontWeight: '700',
+    color: colors.secondary,
     marginBottom: 12,
   },
   optionRow: {
@@ -325,17 +350,17 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   categoryCardSelected: {
-    borderColor: colors.secondary,
-    backgroundColor: '#E0F2F1',
+    borderColor: colors.primary,
+    backgroundColor: colors.highlight,
   },
   categoryText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: colors.text,
     textAlign: 'center',
   },
   categoryTextSelected: {
-    color: colors.secondary,
+    color: colors.primary,
   },
   durationRow: {
     flexDirection: 'row',
@@ -351,8 +376,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   durationCardSelected: {
-    borderColor: colors.accent,
-    backgroundColor: '#FFFBEB',
+    borderColor: colors.secondary,
+    backgroundColor: '#F5F5F5',
   },
   durationText: {
     fontSize: 14,
@@ -360,7 +385,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   durationTextSelected: {
-    color: '#D97706',
+    color: colors.secondary,
   },
   quoteCard: {
     backgroundColor: colors.primary,
@@ -405,7 +430,7 @@ const styles = StyleSheet.create({
   summaryTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.text,
+    color: colors.secondary,
     marginBottom: 12,
   },
   summaryRow: {

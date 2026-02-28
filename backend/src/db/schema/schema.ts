@@ -9,6 +9,7 @@ export const exercises = pgTable('exercises', {
   reps: text('reps'), // for gym exercises
   sets: text('sets'), // for gym exercises
   duration: text('duration'), // for home circuits
+  videoUrl: text('video_url'), // optional video URL for exercise demonstration
 });
 
 export const workouts = pgTable('workouts', {

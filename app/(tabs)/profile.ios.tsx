@@ -7,10 +7,13 @@ import {
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { WebView } from 'react-native-webview';
 import { colors } from '@/styles/commonStyles';
 import { IconSymbol } from '@/components/IconSymbol.ios';
+import { apiGet } from '@/utils/api';
 
 interface Exercise {
   id: string;
@@ -18,13 +21,88 @@ interface Exercise {
   type: string;
   category: string;
   description: string;
-  reps?: string;
-  sets?: string;
-  duration?: string;
+  reps?: string | null;
+  sets?: string | null;
+  duration?: string | null;
+  videoUrl?: string | null;
 }
 
 type FilterType = 'all' | 'home' | 'gym';
 type FilterCategory = 'all' | 'upper' | 'lower' | 'conditioning';
+
+function getEmbedUrl(videoUrl: string): string {
+  // YouTube
+  const ytMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  if (ytMatch) {
+    return `https://www.youtube.com/embed/${ytMatch[1]}?playsinline=1&rel=0`;
+  }
+  // Vimeo
+  const vimeoMatch = videoUrl.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) {
+    return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+  }
+  // Direct video URL - wrap in simple HTML
+  return videoUrl;
+}
+
+function isDirectVideoUrl(url: string): boolean {
+  return /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url);
+}
+
+function VideoPlayer({ videoUrl, exerciseName, onClose }: { videoUrl: string; exerciseName: string; onClose: () => void }) {
+  const embedUrl = getEmbedUrl(videoUrl);
+  const isDirect = isDirectVideoUrl(videoUrl);
+
+  const htmlContent = isDirect
+    ? `<!DOCTYPE html><html><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;height:100vh;">
+        <video src="${videoUrl}" controls autoplay playsinline style="width:100%;max-height:100vh;" />
+      </body></html>`
+    : `<!DOCTYPE html><html><body style="margin:0;background:#000;">
+        <iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
+      </body></html>`;
+
+  return (
+    <Modal visible animationType="slide" onRequestClose={onClose}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }} edges={['top', 'bottom']}>
+        <View style={videoStyles.videoHeader}>
+          <Text style={videoStyles.videoTitle} numberOfLines={1}>{exerciseName}</Text>
+          <TouchableOpacity onPress={onClose} style={videoStyles.closeButton}>
+            <IconSymbol ios_icon_name="xmark.circle.fill" android_material_icon_name="cancel" size={28} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
+        <WebView
+          source={{ html: htmlContent }}
+          style={{ flex: 1, backgroundColor: '#000' }}
+          allowsInlineMediaPlayback
+          mediaPlaybackRequiresUserAction={false}
+          javaScriptEnabled
+          allowsFullscreenVideo
+        />
+      </SafeAreaView>
+    </Modal>
+  );
+}
+
+const videoStyles = StyleSheet.create({
+  videoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#111',
+  },
+  videoTitle: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginRight: 12,
+  },
+  closeButton: {
+    padding: 4,
+  },
+});
 
 export default function ProfileScreen() {
   console.log('ProfileScreen (iOS): Rendering exercise library');
@@ -33,6 +111,7 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [filterCategory, setFilterCategory] = useState<FilterCategory>('all');
+  const [videoModal, setVideoModal] = useState<{ visible: boolean; exercise: Exercise | null }>({ visible: false, exercise: null });
 
   useEffect(() => {
     console.log('ProfileScreen (iOS): Loading exercise library');
@@ -42,37 +121,10 @@ export default function ProfileScreen() {
   const loadExercises = async () => {
     try {
       setLoading(true);
-      // TODO: Backend Integration - GET /api/exercises to fetch all exercises
-      
-      // Mock data for now
-      const mockExercises: Exercise[] = [
-        // Home - Upper
-        { id: '1', name: 'Push-ups', type: 'home', category: 'upper', description: 'Classic bodyweight exercise for chest, shoulders, and triceps', duration: '3 sets of 12-15 reps' },
-        { id: '2', name: 'Diamond Push-ups', type: 'home', category: 'upper', description: 'Narrow hand position targets triceps', duration: '3 sets of 8-10 reps' },
-        { id: '3', name: 'Pike Push-ups', type: 'home', category: 'upper', description: 'Elevated hips target shoulders', duration: '3 sets of 10-12 reps' },
-        
-        // Home - Lower
-        { id: '4', name: 'Squats', type: 'home', category: 'lower', description: 'Fundamental lower body exercise', duration: '3 sets of 15-20 reps' },
-        { id: '5', name: 'Lunges', type: 'home', category: 'lower', description: 'Single leg strength and balance', duration: '3 sets of 12 reps per leg' },
-        
-        // Home - Conditioning
-        { id: '6', name: 'Burpees', type: 'home', category: 'conditioning', description: 'Full body cardio exercise', duration: '3 sets of 10-15 reps' },
-        { id: '7', name: 'Mountain Climbers', type: 'home', category: 'conditioning', description: 'Core and cardio combination', duration: '3 sets of 30 seconds' },
-        
-        // Gym - Upper
-        { id: '8', name: 'Bench Press', type: 'gym', category: 'upper', description: 'Classic chest builder', sets: '3', reps: '8-10' },
-        { id: '9', name: 'Dumbbell Rows', type: 'gym', category: 'upper', description: 'Back thickness and strength', sets: '3', reps: '10-12' },
-        
-        // Gym - Lower
-        { id: '10', name: 'Barbell Squats', type: 'gym', category: 'lower', description: 'King of leg exercises', sets: '4', reps: '8-10' },
-        { id: '11', name: 'Deadlifts', type: 'gym', category: 'lower', description: 'Full posterior chain', sets: '3', reps: '6-8' },
-        
-        // Gym - Conditioning
-        { id: '12', name: 'Rowing Machine', type: 'gym', category: 'conditioning', description: 'Low impact cardio', duration: '20 minutes' },
-      ];
-      
-      setExercises(mockExercises);
-      console.log('ProfileScreen (iOS): Loaded exercises', mockExercises.length);
+      console.log('[API] Requesting GET /api/exercises');
+      const data = await apiGet<Exercise[]>('/api/exercises');
+      setExercises(data);
+      console.log('ProfileScreen (iOS): Loaded exercises', data.length);
     } catch (error) {
       console.error('ProfileScreen (iOS): Error loading exercises', error);
     } finally {
@@ -90,6 +142,13 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
+      {videoModal.visible && videoModal.exercise?.videoUrl && (
+        <VideoPlayer
+          videoUrl={videoModal.exercise.videoUrl}
+          exerciseName={videoModal.exercise.name}
+          onClose={() => setVideoModal({ visible: false, exercise: null })}
+        />
+      )}
       <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
@@ -258,6 +317,7 @@ export default function ProfileScreen() {
             const detailText = exercise.sets && exercise.reps
               ? `${exercise.sets} × ${exercise.reps}`
               : exercise.duration || '';
+            const hasVideo = !!exercise.videoUrl;
             
             return (
               <View key={exercise.id} style={styles.exerciseCard}>
@@ -281,9 +341,26 @@ export default function ProfileScreen() {
                       </View>
                     </View>
                   </View>
+                  {hasVideo && (
+                    <TouchableOpacity
+                      style={styles.videoButton}
+                      onPress={() => {
+                        console.log('User tapped Watch Video for exercise:', exercise.name);
+                        setVideoModal({ visible: true, exercise });
+                      }}
+                    >
+                      <IconSymbol
+                        ios_icon_name="play.circle.fill"
+                        android_material_icon_name="play-circle-filled"
+                        size={20}
+                        color="#FFFFFF"
+                      />
+                      <Text style={styles.videoButtonText}>Watch</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
                 <Text style={styles.exerciseDescription}>{exercise.description}</Text>
-                <Text style={styles.exerciseDetail}>{detailText}</Text>
+                {detailText ? <Text style={styles.exerciseDetail}>{detailText}</Text> : null}
               </View>
             );
           })
@@ -418,5 +495,19 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: colors.primary,
+  },
+  videoButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  videoButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
 });

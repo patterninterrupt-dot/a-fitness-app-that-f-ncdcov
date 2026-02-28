@@ -9,7 +9,9 @@ import {
   SafeAreaView,
   Platform,
   TouchableOpacity,
+  Modal,
 } from 'react-native';
+import { WebView } from 'react-native-webview';
 import { colors } from '@/styles/commonStyles';
 import { IconSymbol } from '@/components/IconSymbol';
 import { apiGet } from '@/utils/api';
@@ -20,13 +22,30 @@ interface Exercise {
   type: string;
   category: string;
   description: string;
-  reps?: string;
-  sets?: string;
-  duration?: string;
+  reps?: string | null;
+  sets?: string | null;
+  duration?: string | null;
+  videoUrl?: string | null;
 }
 
 type FilterType = 'all' | 'home' | 'gym';
 type FilterCategory = 'all' | 'upper' | 'lower' | 'conditioning';
+
+function getEmbedUrl(videoUrl: string): string {
+  const ytMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  if (ytMatch) {
+    return `https://www.youtube.com/embed/${ytMatch[1]}?playsinline=1&rel=0&autoplay=1`;
+  }
+  const vimeoMatch = videoUrl.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) {
+    return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`;
+  }
+  return videoUrl;
+}
+
+function isDirectVideoUrl(url: string): boolean {
+  return /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url);
+}
 
 export default function ProfileScreen() {
   console.log('ProfileScreen: Rendering exercise library');
@@ -35,6 +54,7 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [filterCategory, setFilterCategory] = useState<FilterCategory>('all');
+  const [videoModal, setVideoModal] = useState<{ visible: boolean; exercise: Exercise | null }>({ visible: false, exercise: null });
 
   useEffect(() => {
     console.log('ProfileScreen: Loading exercise library');
@@ -65,6 +85,64 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      {/* Video Modal */}
+      <Modal
+        visible={videoModal.visible}
+        animationType="slide"
+        onRequestClose={() => setVideoModal({ visible: false, exercise: null })}
+      >
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#000', paddingTop: Platform.OS === 'android' ? 48 : 0 }}>
+          <View style={styles.videoModalHeader}>
+            <Text style={styles.videoModalTitle} numberOfLines={1}>
+              {videoModal.exercise?.name || ''}
+            </Text>
+            <TouchableOpacity
+              onPress={() => {
+                console.log('User closed video modal');
+                setVideoModal({ visible: false, exercise: null });
+              }}
+              style={styles.videoModalClose}
+            >
+              <IconSymbol
+                ios_icon_name="xmark.circle.fill"
+                android_material_icon_name="cancel"
+                size={28}
+                color="#FFFFFF"
+              />
+            </TouchableOpacity>
+          </View>
+          {videoModal.exercise?.videoUrl && (
+            isDirectVideoUrl(videoModal.exercise.videoUrl) ? (
+              <WebView
+                source={{
+                  html: `<!DOCTYPE html><html><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;height:100vh;">
+                    <video src="${videoModal.exercise.videoUrl}" controls autoplay playsinline style="width:100%;max-height:100vh;" />
+                  </body></html>`,
+                }}
+                style={{ flex: 1, backgroundColor: '#000' }}
+                allowsInlineMediaPlayback
+                mediaPlaybackRequiresUserAction={false}
+                javaScriptEnabled
+                allowsFullscreenVideo
+              />
+            ) : (
+              <WebView
+                source={{
+                  html: `<!DOCTYPE html><html><body style="margin:0;background:#000;position:relative;height:100vh;">
+                    <iframe src="${getEmbedUrl(videoModal.exercise.videoUrl)}" width="100%" height="100%" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
+                  </body></html>`,
+                }}
+                style={{ flex: 1, backgroundColor: '#000' }}
+                allowsInlineMediaPlayback
+                mediaPlaybackRequiresUserAction={false}
+                javaScriptEnabled
+                allowsFullscreenVideo
+              />
+            )
+          )}
+        </SafeAreaView>
+      </Modal>
+
       <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
@@ -233,6 +311,7 @@ export default function ProfileScreen() {
             const detailText = exercise.sets && exercise.reps
               ? `${exercise.sets} × ${exercise.reps}`
               : exercise.duration || '';
+            const hasVideo = !!exercise.videoUrl;
             
             return (
               <View key={exercise.id} style={styles.exerciseCard}>
@@ -256,9 +335,26 @@ export default function ProfileScreen() {
                       </View>
                     </View>
                   </View>
+                  {hasVideo && (
+                    <TouchableOpacity
+                      style={styles.videoButton}
+                      onPress={() => {
+                        console.log('User tapped Watch Video for exercise:', exercise.name);
+                        setVideoModal({ visible: true, exercise });
+                      }}
+                    >
+                      <IconSymbol
+                        ios_icon_name="play.circle.fill"
+                        android_material_icon_name="play-circle-filled"
+                        size={20}
+                        color="#FFFFFF"
+                      />
+                      <Text style={styles.videoButtonText}>Watch</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
                 <Text style={styles.exerciseDescription}>{exercise.description}</Text>
-                <Text style={styles.exerciseDetail}>{detailText}</Text>
+                {detailText ? <Text style={styles.exerciseDetail}>{detailText}</Text> : null}
               </View>
             );
           })
@@ -394,5 +490,37 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: colors.primary,
+  },
+  videoButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  videoButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  videoModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#111',
+  },
+  videoModalTitle: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginRight: 12,
+  },
+  videoModalClose: {
+    padding: 4,
   },
 });

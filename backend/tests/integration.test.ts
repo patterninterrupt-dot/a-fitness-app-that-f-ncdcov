@@ -5,6 +5,7 @@ describe("API Integration Tests", () => {
   let authToken: string;
   let userId: string;
   let workoutId: string;
+  let exerciseIds: string[] = [];
 
   // ============================================================
   // Auth Setup
@@ -109,6 +110,14 @@ describe("API Integration Tests", () => {
       // Gym workouts should have max 6 exercises
       expect(data.exercises.length).toBeLessThanOrEqual(6);
     });
+
+    test("Get exercise IDs for workout tests", async () => {
+      const res = await api("/api/exercises/home/upper/30");
+      await expectStatus(res, 200);
+      const data = await res.json();
+      exerciseIds = data.exercises.map((ex: any) => ex.id);
+      expect(exerciseIds.length).toBeGreaterThan(0);
+    });
   });
 
   // ============================================================
@@ -125,6 +134,7 @@ describe("API Integration Tests", () => {
           duration: 30,
           category: "upper",
           completedAt: new Date().toISOString(),
+          exerciseIds: [],
         }),
       });
       await expectStatus(res, 401);
@@ -140,7 +150,7 @@ describe("API Integration Tests", () => {
           type: "home",
           duration: 30,
           category: "upper",
-          // missing completedAt
+          // missing completedAt and exerciseIds
         }),
       });
       await expectStatus(res, 400);
@@ -155,6 +165,7 @@ describe("API Integration Tests", () => {
           duration: 30,
           category: "upper",
           completedAt: new Date().toISOString(),
+          exerciseIds: exerciseIds.length > 0 ? exerciseIds.slice(0, 6) : [],
         }),
       });
       await expectStatus(res, 201);
@@ -180,6 +191,7 @@ describe("API Integration Tests", () => {
           duration: 60,
           category: "lower",
           completedAt: new Date().toISOString(),
+          exerciseIds: exerciseIds.length > 0 ? exerciseIds.slice(0, 6) : [],
         }),
       });
       await expectStatus(res, 201);
@@ -198,6 +210,7 @@ describe("API Integration Tests", () => {
           duration: 45,
           category: "conditioning",
           completedAt: new Date().toISOString(),
+          exerciseIds: exerciseIds.length > 0 ? exerciseIds.slice(0, 6) : [],
         }),
       });
       await expectStatus(res, 201);
@@ -214,6 +227,7 @@ describe("API Integration Tests", () => {
           duration: 90,
           category: "upper",
           completedAt: new Date().toISOString(),
+          exerciseIds: exerciseIds.length > 0 ? exerciseIds.slice(0, 6) : [],
         }),
       });
       await expectStatus(res, 201);

@@ -45,7 +45,8 @@ describe("API Integration Tests", () => {
       expect(data).toHaveProperty("totalEstimatedMinutes");
       expect(data).toHaveProperty("rounds");
       expect(typeof data.totalEstimatedMinutes).toBe("number");
-      expect(typeof data.rounds).toBe("number");
+      // rounds can be null or number
+      expect(data.rounds === null || typeof data.rounds === "number").toBe(true);
       if (data.exercises.length > 0) {
         expect(data.exercises[0]).toHaveProperty("id");
         expect(data.exercises[0]).toHaveProperty("name");
@@ -102,8 +103,11 @@ describe("API Integration Tests", () => {
       await expectStatus(res, 200);
       const data = await res.json();
       expect(data).toHaveProperty("exercises");
+      expect(Array.isArray(data.exercises)).toBe(true);
       expect(data).toHaveProperty("totalEstimatedMinutes");
-      expect(data).toHaveProperty("rounds");
+      expect(typeof data.totalEstimatedMinutes).toBe("number");
+      // Gym workouts should have max 6 exercises
+      expect(data.exercises.length).toBeLessThanOrEqual(6);
     });
   });
 

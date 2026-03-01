@@ -255,7 +255,7 @@ export function registerExerciseRoutes(app: App) {
               },
             },
             totalEstimatedMinutes: { type: 'number' },
-            rounds: { type: 'number' },
+            rounds: { type: ['number', 'null'], description: 'Only present for home/circuit workouts' },
           },
         },
         400: {
@@ -288,7 +288,7 @@ export function registerExerciseRoutes(app: App) {
 
       let selectedExercises: typeof exercises;
       let estimatedMinutes: number;
-      let rounds = 1;
+      let rounds: number | undefined;
 
       if (type === 'home') {
         // For home/circuit workouts: each exercise is 30s, with 10s rest = 40s per exercise
@@ -308,32 +308,27 @@ export function registerExerciseRoutes(app: App) {
 
         estimatedMinutes = Math.round(totalTimePerRound * rounds);
       } else {
-        // For gym workouts: select appropriate number of exercises based on duration
-        let exerciseCount: number;
-        if (durationMinutes === 30) {
-          exerciseCount = 6;
-          estimatedMinutes = 30;
-        } else if (durationMinutes === 45) {
-          exerciseCount = 9;
-          estimatedMinutes = 45;
-        } else if (durationMinutes === 60) {
-          exerciseCount = 12;
-          estimatedMinutes = 60;
-        } else {
-          // 90 minutes
-          exerciseCount = 18;
-          estimatedMinutes = 90;
-        }
+        // For gym workouts: ALWAYS 6 exercises max, adjust time per exercise based on duration
+        // This ensures variety while respecting the "max 6 separate exercises" rule
+        const maxExercises = 6;
 
-        // Shuffle and pick random exercises for the workout
+        // Shuffle and pick exactly 6 random exercises
         const shuffled = shuffleArray(exercises);
-        selectedExercises = shuffled.slice(0, Math.min(exerciseCount, shuffled.length));
+        selectedExercises = shuffled.slice(0, Math.min(maxExercises, shuffled.length));
+
+        // Estimate time per exercise based on duration
+        // This accounts for multiple sets/reps within the same exercise
+        estimatedMinutes = durationMinutes;
+
+        // Don't return rounds for gym workouts
+        rounds = undefined;
       }
 
       // Add estimated minutes per exercise
+      const estimatedMinutesPerExercise = estimatedMinutes / selectedExercises.length;
       const exercisesWithTiming = selectedExercises.map((ex) => ({
         ...ex,
-        estimatedMinutes: type === 'home' ? 0.67 : Math.round(estimatedMinutes / selectedExercises.length),
+        estimatedMinutes: Math.round(estimatedMinutesPerExercise * 10) / 10, // Round to 1 decimal place
       }));
 
       app.logger.info(
@@ -341,11 +336,17 @@ export function registerExerciseRoutes(app: App) {
         'Exercises retrieved successfully'
       );
 
-      return {
+      const response: any = {
         exercises: exercisesWithTiming,
         totalEstimatedMinutes: estimatedMinutes,
-        rounds,
       };
+
+      // Only include rounds for home/circuit workouts
+      if (type === 'home' && rounds !== undefined) {
+        response.rounds = rounds;
+      }
+
+      return response;
     } catch (error) {
       app.logger.error({ err: error, type, category, durationMinutes }, 'Failed to fetch exercises');
       throw error;

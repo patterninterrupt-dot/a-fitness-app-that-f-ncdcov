@@ -12,6 +12,7 @@ import {
   Modal,
   SafeAreaView,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "expo-router";
 import { colors } from "@/styles/commonStyles";
@@ -115,17 +116,22 @@ export default function AuthScreen() {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-          <View style={styles.content}>
-            {/* Hero Section */}
-            <View style={styles.hero}>
-              <Text style={styles.heroEmoji}>⚡</Text>
-              <Text style={styles.heroTitle}>Ready is an Action</Text>
-              <Text style={styles.heroSubtitle}>
-                Not a feeling. Start building consistency today.
-              </Text>
-            </View>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          {/* Hero Gradient Header */}
+          <LinearGradient
+            colors={['#D91B7C', '#A0145A']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.hero}
+          >
+            <Text style={styles.heroEmoji}>⚡</Text>
+            <Text style={styles.heroTitle}>Ready is an Action</Text>
+            <Text style={styles.heroSubtitle}>
+              Not a feeling. Start building consistency today.
+            </Text>
+          </LinearGradient>
 
+          <View style={styles.content}>
             {/* Auth Card */}
             <View style={styles.card}>
               {/* Mode Toggle */}
@@ -133,7 +139,17 @@ export default function AuthScreen() {
                 <TouchableOpacity
                   style={[styles.modeButton, mode === "signin" && styles.modeButtonActive]}
                   onPress={() => setMode("signin")}
+                  activeOpacity={0.8}
                 >
+                  {mode === "signin" && (
+                    <LinearGradient
+                      colors={['#D91B7C', '#A0145A']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      style={StyleSheet.absoluteFillObject}
+                      borderRadius={12}
+                    />
+                  )}
                   <Text style={[styles.modeButtonText, mode === "signin" && styles.modeButtonTextActive]}>
                     Sign In
                   </Text>
@@ -141,7 +157,17 @@ export default function AuthScreen() {
                 <TouchableOpacity
                   style={[styles.modeButton, mode === "signup" && styles.modeButtonActive]}
                   onPress={() => setMode("signup")}
+                  activeOpacity={0.8}
                 >
+                  {mode === "signup" && (
+                    <LinearGradient
+                      colors={['#D91B7C', '#A0145A']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      style={StyleSheet.absoluteFillObject}
+                      borderRadius={12}
+                    />
+                  )}
                   <Text style={[styles.modeButtonText, mode === "signup" && styles.modeButtonTextActive]}>
                     Sign Up
                   </Text>
@@ -181,22 +207,30 @@ export default function AuthScreen() {
               />
 
               <TouchableOpacity
-                style={[styles.primaryButton, loading && styles.buttonDisabled]}
+                style={[styles.primaryButtonWrapper, loading && styles.buttonDisabled]}
                 onPress={handleEmailAuth}
                 disabled={loading}
+                activeOpacity={0.9}
               >
-                {loading ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text style={styles.primaryButtonText}>
-                    {mode === "signin" ? "Sign In" : "Create Account"}
-                  </Text>
-                )}
+                <LinearGradient
+                  colors={['#D91B7C', '#A0145A']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.primaryButton}
+                >
+                  {loading ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text style={styles.primaryButtonText}>
+                      {mode === "signin" ? "Sign In" : "Create Account"}
+                    </Text>
+                  )}
+                </LinearGradient>
               </TouchableOpacity>
 
               <View style={styles.divider}>
                 <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>or</Text>
+                <Text style={styles.dividerText}>or continue with</Text>
                 <View style={styles.dividerLine} />
               </View>
 
@@ -204,6 +238,7 @@ export default function AuthScreen() {
                 style={styles.socialButton}
                 onPress={() => handleSocialAuth("google")}
                 disabled={loading}
+                activeOpacity={0.8}
               >
                 <Text style={styles.socialButtonText}>🌐  Continue with Google</Text>
               </TouchableOpacity>
@@ -213,6 +248,7 @@ export default function AuthScreen() {
                   style={[styles.socialButton, styles.appleButton]}
                   onPress={() => handleSocialAuth("apple")}
                   disabled={loading}
+                  activeOpacity={0.8}
                 >
                   <Text style={[styles.socialButtonText, styles.appleButtonText]}>
                      Continue with Apple
@@ -234,7 +270,7 @@ export default function AuthScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#F7F7F9',
   },
   container: {
     flex: 1,
@@ -243,66 +279,72 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: colors.background,
+    backgroundColor: '#F7F7F9',
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
     color: colors.textSecondary,
+    fontWeight: '500',
   },
   scrollContent: {
     flexGrow: 1,
   },
-  content: {
-    flex: 1,
-    padding: 24,
-    justifyContent: "center",
-  },
   hero: {
     alignItems: "center",
-    marginBottom: 32,
+    paddingTop: 60,
+    paddingBottom: 48,
+    paddingHorizontal: 32,
   },
   heroEmoji: {
-    fontSize: 56,
-    marginBottom: 12,
+    fontSize: 52,
+    marginBottom: 16,
   },
   heroTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: colors.text,
+    fontSize: 32,
+    fontWeight: "800",
+    color: '#FFFFFF',
     textAlign: "center",
-    marginBottom: 8,
+    marginBottom: 10,
+    letterSpacing: -0.5,
   },
   heroSubtitle: {
     fontSize: 16,
-    color: colors.textSecondary,
+    color: 'rgba(255,255,255,0.8)',
     textAlign: "center",
     lineHeight: 24,
   },
-  card: {
-    backgroundColor: colors.card,
-    borderRadius: 20,
+  content: {
     padding: 24,
-    borderWidth: 1,
-    borderColor: colors.border,
+    paddingTop: 28,
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 28,
+    padding: 24,
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 24,
+    elevation: 6,
   },
   modeToggle: {
     flexDirection: "row",
-    backgroundColor: colors.border,
-    borderRadius: 12,
+    backgroundColor: '#F0F0F0',
+    borderRadius: 14,
     padding: 4,
-    marginBottom: 20,
+    marginBottom: 24,
+    overflow: 'hidden',
   },
   modeButton: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
+    paddingVertical: 11,
+    borderRadius: 12,
     alignItems: "center",
+    overflow: 'hidden',
   },
-  modeButtonActive: {
-    backgroundColor: colors.primary,
-  },
+  modeButtonActive: {},
   modeButtonText: {
     fontSize: 15,
     fontWeight: "600",
@@ -312,71 +354,74 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   input: {
-    height: 52,
+    height: 54,
     borderWidth: 1.5,
-    borderColor: colors.border,
-    borderRadius: 12,
-    paddingHorizontal: 16,
+    borderColor: '#EBEBEB',
+    borderRadius: 14,
+    paddingHorizontal: 18,
     marginBottom: 14,
     fontSize: 16,
-    backgroundColor: colors.background,
+    backgroundColor: '#FAFAFA',
     color: colors.text,
   },
-  primaryButton: {
-    height: 52,
-    backgroundColor: colors.primary,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
+  primaryButtonWrapper: {
+    borderRadius: 16,
+    overflow: 'hidden',
     marginTop: 4,
     shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  primaryButton: {
+    height: 54,
+    justifyContent: "center",
+    alignItems: "center",
   },
   primaryButtonText: {
     color: "#fff",
     fontSize: 17,
     fontWeight: "700",
+    letterSpacing: 0.2,
   },
   buttonDisabled: {
     opacity: 0.6,
-    shadowOpacity: 0,
   },
   divider: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 20,
+    marginVertical: 22,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: colors.border,
+    backgroundColor: '#EBEBEB',
   },
   dividerText: {
     marginHorizontal: 12,
     color: colors.textSecondary,
-    fontSize: 14,
+    fontSize: 13,
+    fontWeight: '500',
   },
   socialButton: {
-    height: 52,
+    height: 54,
     borderWidth: 1.5,
-    borderColor: colors.border,
-    borderRadius: 12,
+    borderColor: '#EBEBEB',
+    borderRadius: 14,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 12,
-    backgroundColor: colors.background,
+    backgroundColor: '#FAFAFA',
   },
   socialButtonText: {
-    fontSize: 16,
+    fontSize: 15,
     color: colors.text,
     fontWeight: "600",
   },
   appleButton: {
-    backgroundColor: "#000",
-    borderColor: "#000",
+    backgroundColor: "#0A0A0A",
+    borderColor: "#0A0A0A",
   },
   appleButtonText: {
     color: "#fff",
@@ -392,38 +437,49 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: 24,
   },
   modalContent: {
-    backgroundColor: colors.card,
-    borderRadius: 20,
-    padding: 24,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 28,
+    padding: 32,
     width: "100%",
     maxWidth: 340,
     alignItems: "center",
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 12,
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 22,
+    fontWeight: "800",
     color: colors.text,
-    marginBottom: 12,
+    marginBottom: 10,
+    letterSpacing: -0.3,
   },
   modalMessage: {
-    fontSize: 16,
+    fontSize: 15,
     color: colors.textSecondary,
     textAlign: "center",
-    lineHeight: 24,
-    marginBottom: 20,
+    lineHeight: 23,
+    marginBottom: 24,
   },
   modalButton: {
     backgroundColor: colors.primary,
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
+    borderRadius: 14,
+    paddingVertical: 13,
+    paddingHorizontal: 36,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 4,
   },
   modalButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     color: "#FFFFFF",
   },
 });

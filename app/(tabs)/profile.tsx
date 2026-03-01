@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   Modal,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { WebView } from 'react-native-webview';
 import { colors } from '@/styles/commonStyles';
 import { IconSymbol } from '@/components/IconSymbol';
@@ -147,12 +148,12 @@ export default function ProfileScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Exercise Library</Text>
-          <Text style={styles.headerSubtitle}>Browse all available exercises for your workouts</Text>
+          <Text style={styles.headerSubtitle}>Master your form with video demonstrations</Text>
         </View>
 
         {/* Filters */}
         <View style={styles.filterSection}>
-          <Text style={styles.filterTitle}>Type</Text>
+          <Text style={styles.filterTitle}>Workout Type</Text>
           <View style={styles.filterRow}>
             <TouchableOpacity
               style={[
@@ -297,12 +298,24 @@ export default function ProfileScreen() {
         </View>
 
         {/* Results Count */}
-        <Text style={styles.resultsText}>{filteredCount} exercises</Text>
+        <Text style={styles.resultsText}>{filteredCount} exercises available</Text>
 
         {/* Exercise List */}
         {loading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.primary} />
+            <Text style={styles.loadingText}>Loading exercises...</Text>
+          </View>
+        ) : filteredExercises.length === 0 ? (
+          <View style={styles.emptyState}>
+            <IconSymbol
+              ios_icon_name="figure.strengthtraining.traditional"
+              android_material_icon_name="fitness-center"
+              size={56}
+              color={colors.textSecondary}
+            />
+            <Text style={styles.emptyText}>No exercises found</Text>
+            <Text style={styles.emptySubtext}>Try adjusting your filters</Text>
           </View>
         ) : (
           filteredExercises.map((exercise) => {
@@ -312,26 +325,28 @@ export default function ProfileScreen() {
               ? `${exercise.sets} × ${exercise.reps}`
               : exercise.duration || '';
             const hasVideo = !!exercise.videoUrl;
+            const categoryColor = exercise.category === 'upper' ? '#7C3AED' : exercise.category === 'lower' ? '#0891B2' : '#059669';
+            const categoryBg = exercise.category === 'upper' ? '#F5F3FF' : exercise.category === 'lower' ? '#ECFEFF' : '#ECFDF5';
             
             return (
               <View key={exercise.id} style={styles.exerciseCard}>
                 <View style={styles.exerciseHeader}>
-                  <View style={styles.exerciseIcon}>
+                  <View style={[styles.exerciseIcon, { backgroundColor: exercise.type === 'home' ? '#FFF0F7' : '#F0F4FF' }]}>
                     <IconSymbol
-                      ios_icon_name="figure.strengthtraining.traditional"
-                      android_material_icon_name="fitness-center"
-                      size={24}
-                      color={colors.primary}
+                      ios_icon_name={exercise.type === 'home' ? 'house.fill' : 'dumbbell.fill'}
+                      android_material_icon_name={exercise.type === 'home' ? 'home' : 'fitness-center'}
+                      size={22}
+                      color={exercise.type === 'home' ? colors.primary : '#4F46E5'}
                     />
                   </View>
                   <View style={styles.exerciseInfo}>
                     <Text style={styles.exerciseName}>{exercise.name}</Text>
                     <View style={styles.exerciseTags}>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>{typeText}</Text>
+                      <View style={[styles.tag, { backgroundColor: exercise.type === 'home' ? '#FFF0F7' : '#F0F4FF' }]}>
+                        <Text style={[styles.tagText, { color: exercise.type === 'home' ? colors.primary : '#4F46E5' }]}>{typeText}</Text>
                       </View>
-                      <View style={styles.tag}>
-                        <Text style={styles.tagText}>{categoryText}</Text>
+                      <View style={[styles.tag, { backgroundColor: categoryBg }]}>
+                        <Text style={[styles.tagText, { color: categoryColor }]}>{categoryText}</Text>
                       </View>
                     </View>
                   </View>
@@ -342,19 +357,31 @@ export default function ProfileScreen() {
                         console.log('User tapped Watch Video for exercise:', exercise.name);
                         setVideoModal({ visible: true, exercise });
                       }}
+                      activeOpacity={0.85}
                     >
-                      <IconSymbol
-                        ios_icon_name="play.circle.fill"
-                        android_material_icon_name="play-circle-filled"
-                        size={20}
-                        color="#FFFFFF"
-                      />
-                      <Text style={styles.videoButtonText}>Watch</Text>
+                      <LinearGradient
+                        colors={['#D91B7C', '#A0145A']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={styles.videoButtonGradient}
+                      >
+                        <IconSymbol
+                          ios_icon_name="play.circle.fill"
+                          android_material_icon_name="play-circle-filled"
+                          size={18}
+                          color="#FFFFFF"
+                        />
+                        <Text style={styles.videoButtonText}>Watch</Text>
+                      </LinearGradient>
                     </TouchableOpacity>
                   )}
                 </View>
                 <Text style={styles.exerciseDescription}>{exercise.description}</Text>
-                {detailText ? <Text style={styles.exerciseDetail}>{detailText}</Text> : null}
+                {detailText ? (
+                  <View style={styles.detailPill}>
+                    <Text style={styles.exerciseDetail}>{detailText}</Text>
+                  </View>
+                ) : null}
               </View>
             );
           })
@@ -367,38 +394,45 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#F7F7F9',
     paddingTop: Platform.OS === 'android' ? 48 : 0,
   },
   container: {
     flex: 1,
   },
   scrollContent: {
-    padding: 20,
-    paddingBottom: 100,
+    paddingBottom: 110,
   },
   header: {
-    marginBottom: 24,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 28,
+    marginBottom: 0,
   },
   headerTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontSize: 34,
+    fontWeight: '800',
     color: colors.text,
-    marginBottom: 8,
+    marginBottom: 6,
+    letterSpacing: -0.8,
   },
   headerSubtitle: {
     fontSize: 16,
     color: colors.textSecondary,
     lineHeight: 24,
+    fontWeight: '400',
   },
   filterSection: {
+    paddingHorizontal: 24,
     marginBottom: 20,
   },
   filterTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 8,
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.primary,
+    marginBottom: 10,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
   },
   filterRow: {
     flexDirection: 'row',
@@ -406,53 +440,87 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   filterChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: colors.card,
-    borderWidth: 2,
-    borderColor: colors.border,
+    paddingHorizontal: 18,
+    paddingVertical: 9,
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
   },
   filterChipActive: {
     backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    shadowColor: colors.primary,
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 5,
   },
   filterChipText: {
     fontSize: 14,
     fontWeight: '600',
     color: colors.text,
+    letterSpacing: 0.1,
   },
   filterChipTextActive: {
     color: '#FFFFFF',
   },
   resultsText: {
-    fontSize: 14,
+    fontSize: 13,
     color: colors.textSecondary,
     marginBottom: 16,
+    fontWeight: '500',
+    paddingHorizontal: 24,
   },
   loadingContainer: {
-    paddingVertical: 40,
+    paddingVertical: 80,
     alignItems: 'center',
+    gap: 12,
+  },
+  loadingText: {
+    fontSize: 15,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  emptyState: {
+    paddingVertical: 80,
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    gap: 8,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+    marginTop: 8,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: colors.textSecondary,
   },
   exerciseCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 18,
+    marginHorizontal: 20,
     marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
   },
   exerciseHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 14,
     marginBottom: 12,
   },
   exerciseIcon: {
     width: 48,
     height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.highlight,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -461,62 +529,78 @@ const styles = StyleSheet.create({
   },
   exerciseName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: colors.text,
     marginBottom: 6,
+    letterSpacing: 0.1,
   },
   exerciseTags: {
     flexDirection: 'row',
     gap: 6,
   },
   tag: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 9,
     paddingVertical: 4,
-    borderRadius: 6,
-    backgroundColor: colors.border,
+    borderRadius: 8,
   },
   tagText: {
     fontSize: 11,
-    fontWeight: '600',
-    color: colors.textSecondary,
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
   exerciseDescription: {
     fontSize: 14,
     color: colors.textSecondary,
-    lineHeight: 20,
-    marginBottom: 8,
+    lineHeight: 21,
+    marginBottom: 10,
+  },
+  detailPill: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#FFF0F7',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
   exerciseDetail: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '700',
     color: colors.primary,
+    letterSpacing: 0.2,
   },
   videoButton: {
+    borderRadius: 12,
+    overflow: 'hidden',
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  videoButtonGradient: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    gap: 5,
+    paddingHorizontal: 13,
+    paddingVertical: 9,
   },
   videoButtonText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#FFFFFF',
+    letterSpacing: 0.3,
   },
   videoModalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#111',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    backgroundColor: '#0A0A0A',
   },
   videoModalTitle: {
     flex: 1,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#FFFFFF',
     marginRight: 12,
   },

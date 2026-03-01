@@ -10,6 +10,7 @@ import {
   Platform,
   TouchableOpacity,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { colors } from '@/styles/commonStyles';
 import { IconSymbol } from '@/components/IconSymbol';
@@ -162,45 +163,53 @@ export default function HistoryScreen() {
           {stats && (
             <View style={styles.statsGrid}>
               <View style={styles.statCard}>
-                <IconSymbol
-                  ios_icon_name="checkmark.circle.fill"
-                  android_material_icon_name="check-circle"
-                  size={32}
-                  color={colors.primary}
-                />
+                <View style={[styles.statIconBadge, { backgroundColor: '#FFF0F7' }]}>
+                  <IconSymbol
+                    ios_icon_name="checkmark.circle.fill"
+                    android_material_icon_name="check-circle"
+                    size={26}
+                    color={colors.primary}
+                  />
+                </View>
                 <Text style={styles.statValue}>{totalWorkoutsText}</Text>
                 <Text style={styles.statLabel}>Total Workouts</Text>
               </View>
 
               <View style={styles.statCard}>
-                <IconSymbol
-                  ios_icon_name="flame.fill"
-                  android_material_icon_name="local-fire-department"
-                  size={32}
-                  color={colors.secondary}
-                />
+                <View style={[styles.statIconBadge, { backgroundColor: '#FFF7ED' }]}>
+                  <IconSymbol
+                    ios_icon_name="flame.fill"
+                    android_material_icon_name="local-fire-department"
+                    size={26}
+                    color="#F97316"
+                  />
+                </View>
                 <Text style={styles.statValue}>{currentStreakText}</Text>
                 <Text style={styles.statLabel}>Current Streak</Text>
               </View>
 
               <View style={styles.statCard}>
-                <IconSymbol
-                  ios_icon_name="star.fill"
-                  android_material_icon_name="star"
-                  size={32}
-                  color={colors.accent}
-                />
+                <View style={[styles.statIconBadge, { backgroundColor: '#FFFBEB' }]}>
+                  <IconSymbol
+                    ios_icon_name="star.fill"
+                    android_material_icon_name="star"
+                    size={26}
+                    color="#EAB308"
+                  />
+                </View>
                 <Text style={styles.statValue}>{longestStreakText}</Text>
                 <Text style={styles.statLabel}>Longest Streak</Text>
               </View>
 
               <View style={styles.statCard}>
-                <IconSymbol
-                  ios_icon_name="clock.fill"
-                  android_material_icon_name="schedule"
-                  size={32}
-                  color={colors.success}
-                />
+                <View style={[styles.statIconBadge, { backgroundColor: '#ECFDF5' }]}>
+                  <IconSymbol
+                    ios_icon_name="clock.fill"
+                    android_material_icon_name="schedule"
+                    size={26}
+                    color={colors.success}
+                  />
+                </View>
                 <Text style={styles.statValue}>{totalHoursText}h</Text>
                 <Text style={styles.statLabel}>Total Time</Text>
               </View>
@@ -208,11 +217,16 @@ export default function HistoryScreen() {
           )}
 
           {/* Motivational Message */}
-          <View style={styles.motivationCard}>
+          <LinearGradient
+            colors={['#1A1A1A', '#2D2D2D']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.motivationCard}
+          >
             <Text style={styles.motivationText}>
               Every workout is a step forward. Keep showing up!
             </Text>
-          </View>
+          </LinearGradient>
 
           {/* Workout History */}
           <Text style={styles.sectionTitle}>Recent Workouts</Text>
@@ -263,16 +277,21 @@ export default function HistoryScreen() {
       ) : (
         <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
           {/* Rewards Count */}
-          <View style={styles.rewardsCountCard}>
+          <LinearGradient
+            colors={['#D91B7C', '#A0145A']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.rewardsCountCard}
+          >
             <IconSymbol
               ios_icon_name="trophy.fill"
               android_material_icon_name="emoji-events"
-              size={40}
-              color={colors.accent}
+              size={44}
+              color="rgba(255,255,255,0.9)"
             />
             <Text style={styles.rewardsCountNumber}>{rewards.length}</Text>
             <Text style={styles.rewardsCountLabel}>Rewards Earned</Text>
-          </View>
+          </LinearGradient>
 
           {/* Rewards List */}
           {rewards.length === 0 ? (
@@ -329,7 +348,7 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#F7F7F9',
     paddingTop: Platform.OS === 'android' ? 48 : 0,
   },
   container: {
@@ -343,92 +362,111 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    gap: 12,
   },
   loadingText: {
-    marginTop: 16,
-    fontSize: 16,
+    marginTop: 4,
+    fontSize: 15,
     color: colors.textSecondary,
+    fontWeight: '500',
   },
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   statCard: {
     flex: 1,
     minWidth: '45%',
-    backgroundColor: colors.card,
-    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
     padding: 20,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  statIconBadge: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   statValue: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 30,
+    fontWeight: '800',
     color: colors.text,
-    marginTop: 8,
+    marginTop: 10,
+    letterSpacing: -0.5,
   },
   statLabel: {
     fontSize: 12,
     color: colors.textSecondary,
     marginTop: 4,
     textAlign: 'center',
+    fontWeight: '500',
   },
   motivationCard: {
-    backgroundColor: colors.secondary,
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 20,
     marginBottom: 24,
+    overflow: 'hidden',
   },
   motivationText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     color: '#FFFFFF',
     textAlign: 'center',
+    lineHeight: 22,
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: colors.text,
-    marginBottom: 16,
+    marginBottom: 14,
+    letterSpacing: -0.3,
   },
   emptyState: {
     alignItems: 'center',
     paddingVertical: 60,
+    gap: 8,
   },
   emptyText: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
     color: colors.text,
-    marginTop: 16,
+    marginTop: 8,
   },
   emptySubtext: {
     fontSize: 14,
     color: colors.textSecondary,
-    marginTop: 8,
     textAlign: 'center',
   },
   workoutCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
     padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   workoutHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 14,
   },
   workoutIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.success,
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    backgroundColor: '#ECFDF5',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -436,36 +474,43 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   workoutTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '700',
     color: colors.text,
     marginBottom: 4,
   },
   workoutDetails: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
   },
   workoutDetail: {
-    fontSize: 14,
+    fontSize: 13,
     color: colors.textSecondary,
+    fontWeight: '500',
   },
   workoutDetailSeparator: {
-    fontSize: 14,
-    color: colors.textSecondary,
+    fontSize: 13,
+    color: '#D0D0D0',
   },
   workoutDate: {
     fontSize: 12,
     color: colors.textSecondary,
+    fontWeight: '500',
   },
   tabContainer: {
     flexDirection: 'row',
-    margin: 16,
-    backgroundColor: colors.card,
-    borderRadius: 12,
+    marginHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 4,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     padding: 4,
-    borderWidth: 1,
-    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   tab: {
     flex: 1,
@@ -473,11 +518,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    paddingVertical: 10,
-    borderRadius: 10,
+    paddingVertical: 11,
+    borderRadius: 13,
   },
   tabActive: {
     backgroundColor: colors.primary,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   tabText: {
     fontSize: 14,
@@ -488,54 +538,57 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   rewardsCountCard: {
-    backgroundColor: colors.primary,
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: 24,
+    padding: 28,
     alignItems: 'center',
     marginBottom: 24,
+    overflow: 'hidden',
   },
   rewardsCountNumber: {
-    fontSize: 48,
-    fontWeight: 'bold',
+    fontSize: 56,
+    fontWeight: '800',
     color: '#FFFFFF',
-    marginTop: 8,
+    marginTop: 10,
+    letterSpacing: -2,
   },
   rewardsCountLabel: {
-    fontSize: 16,
+    fontSize: 15,
     color: 'rgba(255,255,255,0.85)',
     marginTop: 4,
+    fontWeight: '500',
   },
   rewardCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
     padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   rewardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 14,
   },
   trophyIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 46,
+    height: 46,
+    borderRadius: 14,
     backgroundColor: '#FFFBEB',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.accent,
   },
   rewardInfo: {
     flex: 1,
   },
   rewardMessage: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '700',
     color: colors.text,
-    marginBottom: 6,
+    marginBottom: 5,
   },
   rewardDetails: {
     flexDirection: 'row',
@@ -545,9 +598,10 @@ const styles = StyleSheet.create({
   rewardDetail: {
     fontSize: 13,
     color: colors.textSecondary,
+    fontWeight: '500',
   },
   rewardDetailSeparator: {
     fontSize: 13,
-    color: colors.textSecondary,
+    color: '#D0D0D0',
   },
 });

@@ -1,4 +1,4 @@
-# Natively App
+# a-fitness-app-that-f
 
 This app was built using [Natively.dev](https://natively.dev) - a platform for creating mobile apps.
 

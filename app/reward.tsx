@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   Platform,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { colors } from '@/styles/commonStyles';
 import { IconSymbol } from '@/components/IconSymbol';
@@ -76,58 +77,70 @@ export default function RewardScreen() {
         }}
       />
       
-      <View style={styles.container}>
-        <View style={styles.content}>
-          {/* Trophy Animation */}
-          <Animated.View style={[styles.trophyContainer, animatedStyle]}>
-            <IconSymbol
-              ios_icon_name="trophy.fill"
-              android_material_icon_name="emoji-events"
-              size={120}
-              color={colors.accent}
-            />
-          </Animated.View>
+      <LinearGradient
+        colors={['#D91B7C', '#A0145A', '#6B0E3D']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradientBg}
+      >
+        <View style={styles.container}>
+          <View style={styles.content}>
+            {/* Trophy Animation */}
+            <Animated.View style={[styles.trophyContainer, animatedStyle]}>
+              <View style={styles.trophyBadge}>
+                <IconSymbol
+                  ios_icon_name="trophy.fill"
+                  android_material_icon_name="emoji-events"
+                  size={72}
+                  color="#EAB308"
+                />
+              </View>
+            </Animated.View>
 
-          {/* Success Message */}
-          <Text style={styles.title}>Workout Complete!</Text>
-          <Text style={styles.subtitle}>You showed up. That&apos;s what matters.</Text>
+            {/* Success Message */}
+            <Text style={styles.title}>Workout Complete!</Text>
+            <Text style={styles.subtitle}>You showed up. That&apos;s what matters.</Text>
 
-          {/* Reward Message */}
-          <View style={styles.rewardCard}>
-            <Text style={styles.rewardMessage}>{rewardMessage}</Text>
+            {/* Reward Message */}
+            <View style={styles.rewardCard}>
+              <Text style={styles.rewardLabel}>YOUR REWARD</Text>
+              <Text style={styles.rewardMessage}>{rewardMessage}</Text>
+            </View>
+
+            {/* Motivational Text */}
+            <View style={styles.motivationCard}>
+              <Text style={styles.motivationText}>
+                Ready is not a feeling, it&apos;s an action. You took action today and that&apos;s a win.
+              </Text>
+            </View>
           </View>
 
-          {/* Motivational Text */}
-          <View style={styles.motivationCard}>
-            <Text style={styles.motivationText}>
-              Ready is not a feeling, it&apos;s an action. You took action today and that&apos;s a win.
-            </Text>
+          {/* Buttons */}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.primaryButton} onPress={handleContinue} activeOpacity={0.9}>
+              <Text style={styles.primaryButtonText}>Continue Training</Text>
+              <View style={styles.primaryButtonArrow}>
+                <IconSymbol
+                  ios_icon_name="arrow.right"
+                  android_material_icon_name="arrow-forward"
+                  size={20}
+                  color={colors.primary}
+                />
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.secondaryButton} onPress={handleViewHistory} activeOpacity={0.8}>
+              <IconSymbol
+                ios_icon_name="clock.fill"
+                android_material_icon_name="history"
+                size={18}
+                color="rgba(255,255,255,0.8)"
+              />
+              <Text style={styles.secondaryButtonText}>View History</Text>
+            </TouchableOpacity>
           </View>
         </View>
-
-        {/* Buttons */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.primaryButton} onPress={handleContinue}>
-            <Text style={styles.primaryButtonText}>Continue</Text>
-            <IconSymbol
-              ios_icon_name="arrow.right"
-              android_material_icon_name="arrow-forward"
-              size={24}
-              color="#FFFFFF"
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.secondaryButton} onPress={handleViewHistory}>
-            <IconSymbol
-              ios_icon_name="clock.fill"
-              android_material_icon_name="history"
-              size={20}
-              color={colors.primary}
-            />
-            <Text style={styles.secondaryButtonText}>View History</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      </LinearGradient>
     </SafeAreaView>
   );
 }
@@ -135,13 +148,15 @@ export default function RewardScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
     paddingTop: Platform.OS === 'android' ? 48 : 0,
+  },
+  gradientBg: {
+    flex: 1,
   },
   container: {
     flex: 1,
     justifyContent: 'space-between',
-    padding: 20,
+    padding: 24,
   },
   content: {
     flex: 1,
@@ -149,82 +164,110 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   trophyContainer: {
-    marginBottom: 32,
+    marginBottom: 28,
+  },
+  trophyBadge: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: colors.text,
+    fontSize: 36,
+    fontWeight: '800',
+    color: '#FFFFFF',
     marginBottom: 8,
     textAlign: 'center',
+    letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 18,
-    color: colors.textSecondary,
+    fontSize: 17,
+    color: 'rgba(255,255,255,0.75)',
     marginBottom: 32,
     textAlign: 'center',
+    fontWeight: '400',
   },
   rewardCard: {
-    backgroundColor: colors.primary,
-    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: 24,
     padding: 24,
-    marginBottom: 24,
+    marginBottom: 16,
     width: '100%',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  rewardLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: 'rgba(255,255,255,0.6)',
+    letterSpacing: 1.5,
+    textAlign: 'center',
+    marginBottom: 8,
   },
   rewardMessage: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: '700',
     color: '#FFFFFF',
     textAlign: 'center',
+    lineHeight: 30,
   },
   motivationCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    borderRadius: 20,
     padding: 20,
     width: '100%',
   },
   motivationText: {
-    fontSize: 16,
-    color: colors.text,
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.8)',
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 23,
+    fontStyle: 'italic',
   },
   buttonContainer: {
     gap: 12,
   },
   primaryButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
     padding: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 8,
   },
   primaryButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontSize: 17,
+    fontWeight: '700',
+    color: colors.primary,
+    letterSpacing: 0.1,
+  },
+  primaryButtonArrow: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#FFF0F7',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   secondaryButton: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    borderWidth: 2,
-    borderColor: colors.border,
+    paddingVertical: 16,
   },
   secondaryButtonText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
-    color: colors.primary,
+    color: 'rgba(255,255,255,0.8)',
   },
 });

@@ -11,6 +11,7 @@ import {
   Platform,
   Modal,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { WebView } from 'react-native-webview';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { colors } from '@/styles/commonStyles';
@@ -85,21 +86,16 @@ export default function WorkoutScreen() {
       console.log(`[API] Requesting /api/exercises/${workoutType}/${workoutCategory}/${workoutDuration}`);
       const raw = await apiGet<WorkoutResponse | Exercise[]>(`/api/exercises/${workoutType}/${workoutCategory}/${workoutDuration}`);
 
-      // Handle both new format { exercises, totalEstimatedMinutes, rounds }
-      // and legacy format (plain array) for backward compatibility
       let exerciseList: Exercise[];
       let totalMinutes: number;
       let roundsCount: number | undefined;
 
       if (Array.isArray(raw)) {
-        // Legacy format: plain array of exercises
         console.log('WorkoutScreen: Received legacy array format, adapting to new format');
         exerciseList = raw as Exercise[];
-        // Estimate total time based on workout type and duration param
         totalMinutes = parseInt(workoutDuration, 10);
         roundsCount = undefined;
       } else {
-        // New format: { exercises, totalEstimatedMinutes, rounds }
         const data = raw as WorkoutResponse;
         exerciseList = data.exercises;
         totalMinutes = data.totalEstimatedMinutes;
@@ -165,7 +161,6 @@ export default function WorkoutScreen() {
       
       console.log('WorkoutScreen: Workout completed, reward earned', result.reward?.message);
       
-      // Navigate to reward screen with the reward message
       router.replace(`/reward?message=${encodeURIComponent(result.reward?.message || 'Great job! 💪')}`);
     } catch (error) {
       console.error('WorkoutScreen: Error completing workout', error);
@@ -281,30 +276,36 @@ export default function WorkoutScreen() {
           {/* Workout Info */}
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
-              <IconSymbol
-                ios_icon_name="location.fill"
-                android_material_icon_name="location-on"
-                size={20}
-                color={colors.primary}
-              />
+              <View style={styles.infoIconContainer}>
+                <IconSymbol
+                  ios_icon_name="location.fill"
+                  android_material_icon_name="location-on"
+                  size={20}
+                  color={colors.primary}
+                />
+              </View>
               <Text style={styles.infoText}>{typeText}</Text>
             </View>
             <View style={styles.infoRow}>
-              <IconSymbol
-                ios_icon_name="figure.strengthtraining.traditional"
-                android_material_icon_name="fitness-center"
-                size={20}
-                color={colors.secondary}
-              />
+              <View style={styles.infoIconContainer}>
+                <IconSymbol
+                  ios_icon_name="figure.strengthtraining.traditional"
+                  android_material_icon_name="fitness-center"
+                  size={20}
+                  color={colors.secondary}
+                />
+              </View>
               <Text style={styles.infoText}>{categoryText}</Text>
             </View>
             <View style={styles.infoRow}>
-              <IconSymbol
-                ios_icon_name="clock.fill"
-                android_material_icon_name="schedule"
-                size={20}
-                color={colors.accent}
-              />
+              <View style={styles.infoIconContainer}>
+                <IconSymbol
+                  ios_icon_name="clock.fill"
+                  android_material_icon_name="schedule"
+                  size={20}
+                  color={colors.accent}
+                />
+              </View>
               <Text style={styles.infoText}>{durationText}</Text>
             </View>
           </View>
@@ -312,17 +313,17 @@ export default function WorkoutScreen() {
           {/* Timing Info */}
           {totalEstimatedMinutes > 0 && (
             <View style={styles.timingCard}>
-              <Text style={styles.timingTitle}>Workout Duration</Text>
+              <Text style={styles.timingTitle}>Estimated Duration</Text>
               <Text style={styles.timingValue}>~{totalEstimatedMinutes} minutes</Text>
               {rounds && rounds > 1 && (
-                <Text style={styles.timingRounds}>Complete {rounds} rounds of the circuit</Text>
+                <Text style={styles.timingRounds}>{rounds} rounds • Complete the circuit {rounds} times</Text>
               )}
             </View>
           )}
 
           {/* Progress */}
           <View style={styles.progressCard}>
-            <Text style={styles.progressTitle}>Progress</Text>
+            <Text style={styles.progressTitle}>Your Progress</Text>
             <View style={styles.progressBar}>
               <View
                 style={[
@@ -368,7 +369,7 @@ export default function WorkoutScreen() {
                         <IconSymbol
                           ios_icon_name="checkmark"
                           android_material_icon_name="check"
-                          size={16}
+                          size={18}
                           color="#FFFFFF"
                         />
                       ) : (
@@ -401,7 +402,7 @@ export default function WorkoutScreen() {
                         <IconSymbol
                           ios_icon_name="play.circle.fill"
                           android_material_icon_name="play-circle-filled"
-                          size={18}
+                          size={20}
                           color="#FFFFFF"
                         />
                         <Text style={styles.videoButtonText}>Watch</Text>
@@ -417,7 +418,7 @@ export default function WorkoutScreen() {
                         <IconSymbol
                           ios_icon_name="checkmark"
                           android_material_icon_name="check"
-                          size={20}
+                          size={22}
                           color="#FFFFFF"
                         />
                       )}
@@ -437,7 +438,17 @@ export default function WorkoutScreen() {
             ]}
             onPress={handleCompleteWorkout}
             disabled={!allCompleted || completing}
+            activeOpacity={0.9}
           >
+            {allCompleted && !completing && (
+              <LinearGradient
+                colors={['#D91B7C', '#A0145A']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={StyleSheet.absoluteFillObject}
+                borderRadius={20}
+              />
+            )}
             {completing ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
@@ -465,7 +476,7 @@ export default function WorkoutScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#F7F7F9',
     paddingTop: Platform.OS === 'android' ? 48 : 0,
   },
   container: {
@@ -484,43 +495,65 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontSize: 16,
     color: colors.textSecondary,
+    fontWeight: '500',
   },
   infoCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 20,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 20,
+    marginBottom: 16,
     flexDirection: 'row',
     justifyContent: 'space-around',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.07,
+    shadowRadius: 16,
+    elevation: 3,
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
+  },
+  infoIconContainer: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: '#FFF0F7',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   infoText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
     color: colors.text,
+    letterSpacing: 0.1,
   },
   progressCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 24,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 22,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.07,
+    shadowRadius: 16,
+    elevation: 3,
   },
   progressTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.textSecondary,
     marginBottom: 12,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
   progressBar: {
     height: 8,
-    backgroundColor: colors.border,
+    backgroundColor: '#F0F0F0',
     borderRadius: 4,
     overflow: 'hidden',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   progressFill: {
     height: '100%',
@@ -530,66 +563,80 @@ const styles = StyleSheet.create({
   progressText: {
     fontSize: 14,
     color: colors.textSecondary,
+    fontWeight: '500',
   },
   timingCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 24,
-    borderWidth: 2,
-    borderColor: colors.primary,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 22,
+    marginBottom: 16,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 4,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.primary,
   },
   timingTitle: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '700',
     color: colors.textSecondary,
-    marginBottom: 8,
+    marginBottom: 6,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
   timingValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 32,
+    fontWeight: '800',
     color: colors.primary,
     marginBottom: 4,
+    letterSpacing: -1,
   },
   timingRounds: {
     fontSize: 14,
     color: colors.textSecondary,
-    fontStyle: 'italic',
+    fontWeight: '500',
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: colors.text,
-    marginBottom: 16,
+    marginBottom: 14,
+    letterSpacing: -0.3,
   },
   exerciseCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 18,
     marginBottom: 12,
-    borderWidth: 2,
-    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
   },
   exerciseCardCompleted: {
-    borderColor: colors.success,
     backgroundColor: '#F0FDF4',
+    shadowColor: colors.success,
+    shadowOpacity: 0.12,
   },
   exerciseHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   exerciseLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 14,
     flex: 1,
   },
   exerciseNumber: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 38,
+    height: 38,
+    borderRadius: 12,
     backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
@@ -598,8 +645,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.success,
   },
   exerciseNumberText: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 15,
+    fontWeight: '800',
     color: '#FFFFFF',
   },
   exerciseInfo: {
@@ -607,29 +654,31 @@ const styles = StyleSheet.create({
   },
   exerciseName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: colors.text,
-    marginBottom: 2,
+    marginBottom: 3,
+    letterSpacing: 0.1,
   },
   exerciseNameCompleted: {
     color: colors.success,
   },
   exerciseDetail: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-  exerciseTime: {
-    fontSize: 11,
+    fontSize: 13,
     color: colors.primary,
     fontWeight: '600',
+  },
+  exerciseTime: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    fontWeight: '500',
     marginTop: 2,
   },
   checkbox: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     borderWidth: 2,
-    borderColor: colors.border,
+    borderColor: '#E0E0E0',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -640,70 +689,85 @@ const styles = StyleSheet.create({
   exerciseDescription: {
     fontSize: 14,
     color: colors.textSecondary,
-    lineHeight: 20,
+    lineHeight: 21,
   },
   completeButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 20,
+    padding: 22,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 12,
-    marginTop: 20,
+    marginTop: 24,
+    backgroundColor: colors.primary,
     shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 8,
+    overflow: 'hidden',
   },
   completeButtonDisabled: {
-    backgroundColor: colors.border,
+    backgroundColor: '#E0E0E0',
     shadowOpacity: 0,
+    elevation: 0,
   },
   completeButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 17,
+    fontWeight: '700',
     color: '#FFFFFF',
+    letterSpacing: 0.2,
   },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: 24,
   },
   modalContent: {
-    backgroundColor: colors.card,
-    borderRadius: 20,
-    padding: 24,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 28,
+    padding: 32,
     width: '100%',
     maxWidth: 340,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 12,
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: '800',
     color: colors.text,
-    marginBottom: 12,
+    marginBottom: 10,
+    letterSpacing: -0.3,
   },
   modalMessage: {
-    fontSize: 16,
+    fontSize: 15,
     color: colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 20,
+    lineHeight: 23,
+    marginBottom: 28,
   },
   modalButton: {
     backgroundColor: colors.primary,
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 4,
   },
   modalButtonText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#FFFFFF',
+    letterSpacing: 0.3,
   },
   exerciseActions: {
     flexDirection: 'row',
@@ -713,29 +777,35 @@ const styles = StyleSheet.create({
   videoButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
     backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 5,
+    borderRadius: 10,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 3,
   },
   videoButtonText: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '700',
     color: '#FFFFFF',
+    letterSpacing: 0.2,
   },
   videoModalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#111',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    backgroundColor: '#0A0A0A',
   },
   videoModalTitle: {
     flex: 1,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#FFFFFF',
     marginRight: 12,
   },

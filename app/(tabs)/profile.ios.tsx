@@ -31,17 +31,14 @@ type FilterType = 'all' | 'home' | 'gym';
 type FilterCategory = 'all' | 'upper' | 'lower' | 'conditioning';
 
 function getEmbedUrl(videoUrl: string): string {
-  // YouTube
   const ytMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
   if (ytMatch) {
     return `https://www.youtube.com/embed/${ytMatch[1]}?playsinline=1&rel=0`;
   }
-  // Vimeo
   const vimeoMatch = videoUrl.match(/vimeo\.com\/(\d+)/);
   if (vimeoMatch) {
     return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
   }
-  // Direct video URL - wrap in simple HTML
   return videoUrl;
 }
 
@@ -153,12 +150,12 @@ export default function ProfileScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Exercise Library</Text>
-          <Text style={styles.headerSubtitle}>Browse all available exercises for your workouts</Text>
+          <Text style={styles.headerSubtitle}>Master your form with video demonstrations</Text>
         </View>
 
         {/* Filters */}
         <View style={styles.filterSection}>
-          <Text style={styles.filterTitle}>Type</Text>
+          <Text style={styles.filterTitle}>Workout Type</Text>
           <View style={styles.filterRow}>
             <TouchableOpacity
               style={[
@@ -303,7 +300,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* Results Count */}
-        <Text style={styles.resultsText}>{filteredCount} exercises</Text>
+        <Text style={styles.resultsText}>{filteredCount} exercises available</Text>
 
         {/* Exercise List */}
         {loading ? (
@@ -352,7 +349,7 @@ export default function ProfileScreen() {
                       <IconSymbol
                         ios_icon_name="play.circle.fill"
                         android_material_icon_name="play-circle-filled"
-                        size={20}
+                        size={22}
                         color="#FFFFFF"
                       />
                       <Text style={styles.videoButtonText}>Watch</Text>
@@ -379,53 +376,66 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 20,
+    padding: 24,
     paddingBottom: 100,
   },
   header: {
-    marginBottom: 24,
+    marginBottom: 32,
   },
   headerTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontSize: 36,
+    fontWeight: '700',
     color: colors.text,
     marginBottom: 8,
+    letterSpacing: -0.5,
   },
   headerSubtitle: {
-    fontSize: 16,
+    fontSize: 17,
     color: colors.textSecondary,
-    lineHeight: 24,
+    lineHeight: 26,
+    fontWeight: '400',
   },
   filterSection: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
   filterTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     color: colors.text,
-    marginBottom: 8,
+    marginBottom: 12,
+    letterSpacing: 0.2,
   },
   filterRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: 10,
   },
   filterChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 24,
     backgroundColor: colors.card,
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   filterChipActive: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
+    shadowColor: colors.primary,
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   filterChipText: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
     color: colors.text,
+    letterSpacing: 0.2,
   },
   filterChipTextActive: {
     color: '#FFFFFF',
@@ -433,30 +443,34 @@ const styles = StyleSheet.create({
   resultsText: {
     fontSize: 14,
     color: colors.textSecondary,
-    marginBottom: 16,
+    marginBottom: 20,
+    fontWeight: '500',
   },
   loadingContainer: {
-    paddingVertical: 40,
+    paddingVertical: 60,
     alignItems: 'center',
   },
   exerciseCard: {
     backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
   },
   exerciseHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 12,
+    gap: 14,
+    marginBottom: 14,
   },
   exerciseIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: colors.highlight,
     justifyContent: 'center',
     alignItems: 'center',
@@ -465,49 +479,58 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   exerciseName: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
     color: colors.text,
-    marginBottom: 6,
+    marginBottom: 8,
+    letterSpacing: 0.1,
   },
   exerciseTags: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 8,
   },
   tag: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    backgroundColor: colors.border,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    backgroundColor: colors.highlight,
   },
   tagText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: colors.textSecondary,
-  },
-  exerciseDescription: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  exerciseDetail: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
     color: colors.primary,
+    letterSpacing: 0.3,
+  },
+  exerciseDescription: {
+    fontSize: 15,
+    color: colors.textSecondary,
+    lineHeight: 22,
+    marginBottom: 10,
+  },
+  exerciseDetail: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
+    letterSpacing: 0.2,
   },
   videoButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
     backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 3,
   },
   videoButtonText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
     color: '#FFFFFF',
+    letterSpacing: 0.3,
   },
 });

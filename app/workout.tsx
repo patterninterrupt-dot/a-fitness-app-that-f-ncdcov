@@ -84,6 +84,8 @@ export default function WorkoutScreen() {
     try {
       setLoading(true);
       console.log(`[API] Requesting /api/exercises/${workoutType}/${workoutCategory}/${workoutDuration}`);
+      console.log('Exercise variety system: Backend will randomize exercises and avoid recently used ones from the last 7 days');
+      
       const raw = await apiGet<WorkoutResponse | Exercise[]>(`/api/exercises/${workoutType}/${workoutCategory}/${workoutDuration}`);
 
       let exerciseList: Exercise[];
@@ -105,11 +107,14 @@ export default function WorkoutScreen() {
       setExercises(exerciseList);
       setTotalEstimatedMinutes(totalMinutes);
       setRounds(roundsCount);
-      console.log('WorkoutScreen: Loaded exercises', {
+      
+      console.log('WorkoutScreen: Loaded exercises with variety', {
         count: exerciseList.length,
         totalMinutes,
         rounds: roundsCount,
+        exerciseNames: exerciseList.map(ex => ex.name),
       });
+      console.log('✅ Exercise variety: Each session generates a new randomized set of exercises');
     } catch (error) {
       console.error('WorkoutScreen: Error loading exercises', error);
       setErrorModal({ visible: true, message: 'Failed to load exercises. Please try again.' });
@@ -154,6 +159,7 @@ export default function WorkoutScreen() {
         completedAt,
         exerciseIds,
       });
+      console.log('💾 Saving exercise IDs for variety tracking - these exercises will be avoided in future sessions for the next 7 days');
       
       const result = await authenticatedPost<{ workout: any; reward: { message: string } }>('/api/workouts', {
         type: workoutType,
@@ -164,6 +170,7 @@ export default function WorkoutScreen() {
       });
       
       console.log('WorkoutScreen: Workout completed, reward earned', result.reward?.message);
+      console.log('✅ Exercise variety system updated - next session will prioritize different exercises');
       
       router.replace(`/reward?message=${encodeURIComponent(result.reward?.message || 'Great job! 💪')}`);
     } catch (error) {

@@ -145,11 +145,14 @@ export default function WorkoutScreen() {
     try {
       setCompleting(true);
       const completedAt = new Date().toISOString();
+      const exerciseIds = exercises.map(ex => ex.id);
+      
       console.log('[API] Requesting POST /api/workouts', {
         type: workoutType,
         category: workoutCategory,
         duration: parseInt(workoutDuration, 10),
         completedAt,
+        exerciseIds,
       });
       
       const result = await authenticatedPost<{ workout: any; reward: { message: string } }>('/api/workouts', {
@@ -157,6 +160,7 @@ export default function WorkoutScreen() {
         duration: parseInt(workoutDuration, 10),
         category: workoutCategory,
         completedAt,
+        exerciseIds,
       });
       
       console.log('WorkoutScreen: Workout completed, reward earned', result.reward?.message);

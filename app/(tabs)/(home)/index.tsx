@@ -94,7 +94,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
-        {/* Hero Header */}
+        {/* Hero Header - Logo Only */}
         <LinearGradient
           colors={['#D91B7C', '#A0145A']}
           start={{ x: 0, y: 0 }}
@@ -116,13 +116,47 @@ export default function HomeScreen() {
               />
             </TouchableOpacity>
           </View>
-          <Text style={styles.heroTitle}>Sometimes we just have to start, then everything else will follow. So, choose your workout below and soon, with a little consistency, you will have created a new habit!</Text>
           {user && (
             <View style={styles.welcomePill}>
               <Text style={styles.welcomeText}>👋 {user.name || user.email?.split('@')[0] || 'Athlete'}</Text>
             </View>
           )}
         </LinearGradient>
+
+        {/* Pattern Interrupt Box */}
+        <View style={styles.patternInterruptCard}>
+          <View style={styles.patternInterruptHeader}>
+            <View style={styles.patternInterruptAccent} />
+            <Text style={styles.patternInterruptTitle}>Interrupt the Pattern</Text>
+          </View>
+          <Text style={styles.patternInterruptSubtitle}>Feeling stuck? Here&apos;s how to break free:</Text>
+          
+          <View style={styles.patternStep}>
+            <Text style={styles.patternStepNumber}>1.</Text>
+            <View style={styles.patternStepContent}>
+              <Text style={styles.patternStepBold}>Notice the thought:</Text>
+              <Text style={styles.patternStepText}>&quot;I&apos;m not ready.&quot;</Text>
+            </View>
+          </View>
+
+          <View style={styles.patternStep}>
+            <Text style={styles.patternStepNumber}>2.</Text>
+            <View style={styles.patternStepContent}>
+              <Text style={styles.patternStepBold}>Name it:</Text>
+              <Text style={styles.patternStepText}>&quot;That&apos;s just a pattern, not a fact.&quot;</Text>
+            </View>
+          </View>
+
+          <View style={styles.patternStep}>
+            <Text style={styles.patternStepNumber}>3.</Text>
+            <View style={styles.patternStepContent}>
+              <Text style={styles.patternStepBold}>Act anyway:</Text>
+              <Text style={styles.patternStepText}>Choose your workout and start NOW.</Text>
+            </View>
+          </View>
+
+          <Text style={styles.patternQuote}>&quot;Ready is an action, not a feeling. It&apos;s a choice you make, not a state you wait for.&quot;</Text>
+        </View>
 
         {/* Quick Actions */}
         <View style={styles.quickActions}>
@@ -164,7 +198,7 @@ export default function HomeScreen() {
 
         {/* Workout Type Selection */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>LOCATION</Text>
+          <Text style={styles.sectionLabel}>CHOOSE YOUR WORKOUT</Text>
           <Text style={styles.sectionTitle}>Where are you training?</Text>
           <View style={styles.optionRow}>
             <TouchableOpacity
@@ -466,19 +500,19 @@ const styles = StyleSheet.create({
     paddingBottom: 110,
   },
 
-  // Hero
+  // Hero - Logo Only
   heroCard: {
     marginHorizontal: 0,
     paddingHorizontal: 24,
     paddingTop: 20,
-    paddingBottom: 32,
-    marginBottom: 24,
+    paddingBottom: 24,
+    marginBottom: 20,
   },
   heroTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 12,
   },
   logo: {
     width: 160,
@@ -492,31 +526,91 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  heroTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    lineHeight: 26,
-    letterSpacing: 0.2,
-  },
-  heroSubtitle: {
-    fontSize: 15,
-    color: 'rgba(255,255,255,0.8)',
-    lineHeight: 22,
-    marginBottom: 16,
-  },
   welcomePill: {
     alignSelf: 'flex-start',
     backgroundColor: 'rgba(255,255,255,0.2)',
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 6,
-    marginTop: 16,
   },
   welcomeText: {
     fontSize: 13,
     fontWeight: '600',
     color: '#FFFFFF',
+  },
+
+  // Pattern Interrupt Card
+  patternInterruptCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 24,
+    marginHorizontal: 20,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  patternInterruptHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  patternInterruptAccent: {
+    width: 5,
+    height: 28,
+    backgroundColor: colors.primary,
+    borderRadius: 3,
+    marginRight: 12,
+  },
+  patternInterruptTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: colors.text,
+    letterSpacing: -0.3,
+  },
+  patternInterruptSubtitle: {
+    fontSize: 15,
+    color: colors.textSecondary,
+    marginBottom: 20,
+    lineHeight: 22,
+  },
+  patternStep: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    alignItems: 'flex-start',
+  },
+  patternStepNumber: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.primary,
+    marginRight: 12,
+    width: 24,
+  },
+  patternStepContent: {
+    flex: 1,
+  },
+  patternStepBold: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 2,
+  },
+  patternStepText: {
+    fontSize: 16,
+    color: colors.text,
+    lineHeight: 22,
+  },
+  patternQuote: {
+    fontSize: 14,
+    fontStyle: 'italic',
+    color: colors.textSecondary,
+    marginTop: 20,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E5E5',
+    lineHeight: 20,
   },
 
   // Quick Actions

@@ -85,7 +85,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-        {/* Logo and Header */}
+        {/* Logo Only */}
         <View style={styles.logoContainer}>
           <Image
             source={resolveImageSource(require('@/assets/images/73c0c96e-8497-4bac-8c89-5decec12a3cf.jpeg'))}
@@ -94,13 +94,45 @@ export default function HomeScreen() {
           />
         </View>
 
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Sometimes we just have to start, then everything else will follow. So, choose your workout below and soon, with a little consistency, you will have created a new habit!</Text>
+        {/* Pattern Interrupt Box */}
+        <View style={styles.patternInterruptCard}>
+          <View style={styles.patternInterruptHeader}>
+            <View style={styles.patternInterruptAccent} />
+            <Text style={styles.patternInterruptTitle}>Interrupt the Pattern</Text>
+          </View>
+          <Text style={styles.patternInterruptSubtitle}>Feeling stuck? Here&apos;s how to break free:</Text>
+          
+          <View style={styles.patternStep}>
+            <Text style={styles.patternStepNumber}>1.</Text>
+            <View style={styles.patternStepContent}>
+              <Text style={styles.patternStepBold}>Notice the thought:</Text>
+              <Text style={styles.patternStepText}>&quot;I&apos;m not ready.&quot;</Text>
+            </View>
+          </View>
+
+          <View style={styles.patternStep}>
+            <Text style={styles.patternStepNumber}>2.</Text>
+            <View style={styles.patternStepContent}>
+              <Text style={styles.patternStepBold}>Name it:</Text>
+              <Text style={styles.patternStepText}>&quot;That&apos;s just a pattern, not a fact.&quot;</Text>
+            </View>
+          </View>
+
+          <View style={styles.patternStep}>
+            <Text style={styles.patternStepNumber}>3.</Text>
+            <View style={styles.patternStepContent}>
+              <Text style={styles.patternStepBold}>Act anyway:</Text>
+              <Text style={styles.patternStepText}>Choose your workout and start NOW.</Text>
+            </View>
+          </View>
+
+          <Text style={styles.patternQuote}>&quot;Ready is an action, not a feeling. It&apos;s a choice you make, not a state you wait for.&quot;</Text>
         </View>
 
         {/* Workout Type Selection */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Workout Location</Text>
+          <Text style={styles.sectionLabel}>CHOOSE YOUR WORKOUT</Text>
+          <Text style={styles.sectionTitle}>Where are you training?</Text>
           <View style={styles.optionRow}>
             <TouchableOpacity
               style={[
@@ -160,7 +192,8 @@ export default function HomeScreen() {
 
         {/* Category Selection */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Focus Area</Text>
+          <Text style={styles.sectionLabel}>FOCUS AREA</Text>
+          <Text style={styles.sectionTitle}>What are you training?</Text>
           <View style={styles.categoryRow}>
             <TouchableOpacity
               style={[
@@ -226,7 +259,8 @@ export default function HomeScreen() {
 
         {/* Cardio Option */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Steady State Cardio</Text>
+          <Text style={styles.sectionLabel}>STEADY STATE CARDIO</Text>
+          <Text style={styles.sectionTitle}>Or log a cardio session</Text>
           <TouchableOpacity
             style={styles.cardioButton}
             onPress={handleCardioPress}
@@ -254,7 +288,8 @@ export default function HomeScreen() {
 
         {/* Duration Selection */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Duration</Text>
+          <Text style={styles.sectionLabel}>DURATION</Text>
+          <Text style={styles.sectionTitle}>How long do you have?</Text>
           <View style={styles.durationRow}>
             {[30, 45, 60, 90].map((duration) => {
               const isSelected = selectedDuration === duration;
@@ -434,23 +469,91 @@ const styles = StyleSheet.create({
     width: 200,
     height: 120,
   },
-  header: {
-    marginBottom: 32,
+
+  // Pattern Interrupt Card
+  patternInterruptCard: {
+    backgroundColor: colors.card,
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 28,
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  headerTitle: {
-    fontSize: 17,
-    fontWeight: '600',
+  patternInterruptHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  patternInterruptAccent: {
+    width: 5,
+    height: 28,
+    backgroundColor: colors.primary,
+    borderRadius: 3,
+    marginRight: 12,
+  },
+  patternInterruptTitle: {
+    fontSize: 20,
+    fontWeight: '800',
     color: colors.secondary,
-    lineHeight: 25,
-    letterSpacing: 0.2,
+    letterSpacing: -0.3,
   },
-  headerSubtitle: {
+  patternInterruptSubtitle: {
     fontSize: 15,
     color: colors.textSecondary,
+    marginBottom: 20,
     lineHeight: 22,
   },
+  patternStep: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    alignItems: 'flex-start',
+  },
+  patternStepNumber: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.primary,
+    marginRight: 12,
+    width: 24,
+  },
+  patternStepContent: {
+    flex: 1,
+  },
+  patternStepBold: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 2,
+  },
+  patternStepText: {
+    fontSize: 16,
+    color: colors.text,
+    lineHeight: 22,
+  },
+  patternQuote: {
+    fontSize: 14,
+    fontStyle: 'italic',
+    color: colors.textSecondary,
+    marginTop: 20,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    lineHeight: 20,
+  },
+
   section: {
     marginBottom: 28,
+  },
+  sectionLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.primary,
+    letterSpacing: 1.5,
+    marginBottom: 4,
   },
   sectionTitle: {
     fontSize: 18,

@@ -144,6 +144,8 @@ describe("API Integration Tests", () => {
         }),
       });
       await expectStatus(res, 400);
+      const data = await res.json();
+      expect(data).toHaveProperty("error");
     });
 
     test("POST /api/workouts - Create workout successfully", async () => {

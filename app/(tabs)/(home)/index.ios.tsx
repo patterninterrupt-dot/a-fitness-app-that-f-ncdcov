@@ -8,15 +8,19 @@ import {
   TouchableOpacity,
   Image,
   ImageSourcePropType,
+  Modal,
+  TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/styles/commonStyles';
 import { IconSymbol } from '@/components/IconSymbol.ios';
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type WorkoutType = 'home' | 'gym';
 type WorkoutCategory = 'upper' | 'lower' | 'conditioning';
 type WorkoutDuration = 30 | 45 | 60 | 90;
+type CardioType = 'running' | 'cycling' | 'rowing';
 
 // Helper to resolve image sources (handles both local require() and remote URLs)
 function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
@@ -32,6 +36,12 @@ export default function HomeScreen() {
   const [selectedType, setSelectedType] = useState<WorkoutType>('home');
   const [selectedCategory, setSelectedCategory] = useState<WorkoutCategory>('upper');
   const [selectedDuration, setSelectedDuration] = useState<WorkoutDuration>(45);
+  
+  // Cardio modal state
+  const [cardioModalVisible, setCardioModalVisible] = useState(false);
+  const [selectedCardioType, setSelectedCardioType] = useState<CardioType>('running');
+  const [cardioDistance, setCardioDistance] = useState('');
+  const [cardioTime, setCardioTime] = useState('');
 
   const handleStartWorkout = () => {
     console.log('User tapped Start Workout button', {
@@ -42,9 +52,35 @@ export default function HomeScreen() {
     router.push(`/workout?type=${selectedType}&category=${selectedCategory}&duration=${selectedDuration}`);
   };
 
+  const handleCardioPress = () => {
+    console.log('User tapped Cardio button');
+    setCardioModalVisible(true);
+  };
+
+  const handleCardioSubmit = () => {
+    const distance = parseFloat(cardioDistance);
+    const time = parseFloat(cardioTime);
+    
+    if (!cardioDistance || !cardioTime || isNaN(distance) || isNaN(time) || distance <= 0 || time <= 0) {
+      console.log('Invalid cardio input', { distance: cardioDistance, time: cardioTime });
+      return;
+    }
+    
+    console.log('User submitted cardio workout', {
+      cardioType: selectedCardioType,
+      distance,
+      time,
+    });
+    
+    // TODO: Backend Integration - POST /api/cardio with { cardioType, distance, time, completedAt } → { workout, reward }
+    setCardioModalVisible(false);
+    router.push(`/reward?message=${encodeURIComponent('Great cardio session! 🏃‍♂️💪')}`);
+  };
+
   const typeText = selectedType === 'home' ? 'Home' : 'Gym';
   const categoryText = selectedCategory === 'upper' ? 'Upper Body' : selectedCategory === 'lower' ? 'Lower Body' : 'Conditioning';
   const durationText = `${selectedDuration} min`;
+  const cardioTypeText = selectedCardioType === 'running' ? 'Running' : selectedCardioType === 'cycling' ? 'Cycling' : 'Rowing';
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -189,6 +225,34 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        {/* Cardio Option */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Steady State Cardio</Text>
+          <TouchableOpacity
+            style={styles.cardioButton}
+            onPress={handleCardioPress}
+          >
+            <View style={styles.cardioIconBadge}>
+              <IconSymbol
+                ios_icon_name="figure.run"
+                android_material_icon_name="directions-run"
+                size={28}
+                color={colors.primary}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.cardioButtonTitle}>Log Cardio Session</Text>
+              <Text style={styles.cardioButtonSubtitle}>Running • Cycling • Rowing</Text>
+            </View>
+            <IconSymbol
+              ios_icon_name="chevron.right"
+              android_material_icon_name="chevron-right"
+              size={20}
+              color={colors.textSecondary}
+            />
+          </TouchableOpacity>
+        </View>
+
         {/* Duration Selection */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Duration</Text>
@@ -296,6 +360,102 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Cardio Modal */}
+      <Modal
+        visible={cardioModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setCardioModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Log Cardio Session</Text>
+              <TouchableOpacity
+                onPress={() => {
+                  console.log('User closed cardio modal');
+                  setCardioModalVisible(false);
+                }}
+                style={styles.modalCloseButton}
+              >
+                <IconSymbol
+                  ios_icon_name="xmark.circle.fill"
+                  android_material_icon_name="cancel"
+                  size={28}
+                  color={colors.textSecondary}
+                />
+              </TouchableOpacity>
+            </View>
+
+            {/* Cardio Type Selection */}
+            <Text style={styles.modalSectionLabel}>Activity Type</Text>
+            <View style={styles.cardioTypeRow}>
+              {[
+                { key: 'running', label: 'Running', icon: 'figure.run' as const, materialIcon: 'directions-run' as const },
+                { key: 'cycling', label: 'Cycling', icon: 'bicycle' as const, materialIcon: 'directions-bike' as const },
+                { key: 'rowing', label: 'Rowing', icon: 'figure.rowing' as const, materialIcon: 'rowing' as const },
+              ].map(({ key, label, icon, materialIcon }) => {
+                const isSelected = selectedCardioType === key;
+                return (
+                  <TouchableOpacity
+                    key={key}
+                    style={[styles.cardioTypeCard, isSelected && styles.cardioTypeCardSelected]}
+                    onPress={() => {
+                      console.log('User selected cardio type:', key);
+                      setSelectedCardioType(key as CardioType);
+                    }}
+                  >
+                    <IconSymbol
+                      ios_icon_name={icon}
+                      android_material_icon_name={materialIcon}
+                      size={28}
+                      color={isSelected ? colors.primary : colors.textSecondary}
+                    />
+                    <Text style={[styles.cardioTypeText, isSelected && styles.cardioTypeTextSelected]}>{label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {/* Distance Input */}
+            <Text style={styles.modalSectionLabel}>Distance (km)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g., 5.0"
+              placeholderTextColor={colors.textSecondary}
+              keyboardType="decimal-pad"
+              value={cardioDistance}
+              onChangeText={setCardioDistance}
+            />
+
+            {/* Time Input */}
+            <Text style={styles.modalSectionLabel}>Time (minutes)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g., 30"
+              placeholderTextColor={colors.textSecondary}
+              keyboardType="decimal-pad"
+              value={cardioTime}
+              onChangeText={setCardioTime}
+            />
+
+            {/* Submit Button */}
+            <TouchableOpacity
+              style={styles.modalSubmitButton}
+              onPress={handleCardioSubmit}
+            >
+              <Text style={styles.modalSubmitButtonText}>Complete Cardio Session</Text>
+              <IconSymbol
+                ios_icon_name="checkmark.circle.fill"
+                android_material_icon_name="check-circle"
+                size={22}
+                color="#FFFFFF"
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -400,6 +560,35 @@ const styles = StyleSheet.create({
   },
   categoryTextSelected: {
     color: colors.primary,
+  },
+  cardioButton: {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    borderWidth: 2,
+    borderColor: colors.border,
+  },
+  cardioIconBadge: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: colors.highlight,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cardioButtonTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 3,
+  },
+  cardioButtonSubtitle: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    fontWeight: '500',
   },
   durationRow: {
     flexDirection: 'row',
@@ -553,5 +742,97 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: colors.text,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    padding: 28,
+    paddingBottom: 40,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: colors.text,
+  },
+  modalCloseButton: {
+    padding: 4,
+  },
+  modalSectionLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.textSecondary,
+    marginBottom: 10,
+    marginTop: 8,
+  },
+  cardioTypeRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 20,
+  },
+  cardioTypeCard: {
+    flex: 1,
+    backgroundColor: colors.card,
+    borderRadius: 14,
+    paddingVertical: 18,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+    gap: 8,
+    borderWidth: 2,
+    borderColor: colors.border,
+  },
+  cardioTypeCardSelected: {
+    borderColor: colors.primary,
+    backgroundColor: colors.highlight,
+  },
+  cardioTypeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.text,
+    textAlign: 'center',
+  },
+  cardioTypeTextSelected: {
+    color: colors.primary,
+  },
+  input: {
+    backgroundColor: colors.card,
+    borderRadius: 14,
+    padding: 16,
+    fontSize: 16,
+    color: colors.text,
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: colors.border,
+  },
+  modalSubmitButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 16,
+    padding: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    marginTop: 12,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  modalSubmitButtonText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
 });

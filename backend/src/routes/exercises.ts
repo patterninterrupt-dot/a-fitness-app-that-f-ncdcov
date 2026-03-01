@@ -1,6 +1,6 @@
 import type { App } from '../index.js';
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import { eq, and, gt } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import * as schema from '../db/schema/schema.js';
 
 const motivationalMessages = [
@@ -273,7 +273,7 @@ export function registerExerciseRoutes(app: App) {
     app.logger.info({ type, category, durationMinutes }, 'Fetching exercises for duration');
 
     try {
-      let allExercises = await app.db
+      const exercises = await app.db
         .select()
         .from(schema.exercises)
         .where(and(
@@ -281,64 +281,12 @@ export function registerExerciseRoutes(app: App) {
           eq(schema.exercises.category, category)
         ));
 
-      if (allExercises.length === 0) {
+      if (exercises.length === 0) {
         app.logger.warn({ type, category }, 'No exercises found for filters');
         return reply.status(400).send({ error: 'No exercises found for the specified filters' });
       }
 
-      // Try to get recently used exercises if user is authenticated
-      let recentlyUsedExerciseIds: string[] = [];
-
-      // Get user ID from request if authenticated
-      const userId = (request as any).user?.id;
-
-      if (userId) {
-        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-
-        app.logger.info({ userId, type, category }, 'Checking for recently used exercises');
-
-        try {
-          // Find exercises used in the last 7 days for this type and category
-          const recentExercises = await app.db
-            .select({ exerciseId: schema.workoutExercises.exerciseId })
-            .from(schema.workoutExercises)
-            .innerJoin(schema.workouts, eq(schema.workoutExercises.workoutId, schema.workouts.id))
-            .innerJoin(schema.exercises, eq(schema.workoutExercises.exerciseId, schema.exercises.id))
-            .where(and(
-              eq(schema.workouts.userId, userId),
-              eq(schema.exercises.type, type),
-              eq(schema.exercises.category, category),
-              gt(schema.workoutExercises.createdAt, sevenDaysAgo)
-            ));
-
-          recentlyUsedExerciseIds = recentExercises.map((r) => r.exerciseId);
-          app.logger.info({ count: recentlyUsedExerciseIds.length }, 'Recently used exercises found');
-        } catch (error) {
-          app.logger.warn({ err: error }, 'Failed to fetch recently used exercises, proceeding without rotation');
-        }
-      } else {
-        app.logger.debug('User not authenticated, exercise rotation skipped');
-      }
-
-      // Filter out recently used exercises
-      let availableExercises = allExercises.filter(
-        (ex) => !recentlyUsedExerciseIds.includes(ex.id)
-      );
-
-      // If we don't have enough unused exercises, include some recently used ones
-      // but prioritize least recently used
-      if (availableExercises.length < 6) {
-        app.logger.info(
-          { available: availableExercises.length, needed: 6 },
-          'Not enough unused exercises, including recently used ones'
-        );
-        const recentlyUsedExercises = allExercises.filter(
-          (ex) => recentlyUsedExerciseIds.includes(ex.id)
-        );
-        availableExercises = [...availableExercises, ...recentlyUsedExercises];
-      }
-
-      let selectedExercises: typeof availableExercises;
+      let selectedExercises: typeof exercises;
       let estimatedMinutes: number;
       let rounds: number | undefined;
 
@@ -350,7 +298,7 @@ export function registerExerciseRoutes(app: App) {
         const restBetweenRounds = 60; // 1 minute rest between rounds
 
         // Shuffle and pick up to 6 random exercises
-        const shuffled = shuffleArray(availableExercises);
+        const shuffled = shuffleArray(exercises);
         selectedExercises = shuffled.slice(0, Math.min(maxExercisesPerRound, shuffled.length));
 
         // Calculate how many rounds fit in the duration
@@ -365,7 +313,7 @@ export function registerExerciseRoutes(app: App) {
         const maxExercises = 6;
 
         // Shuffle and pick exactly 6 random exercises
-        const shuffled = shuffleArray(availableExercises);
+        const shuffled = shuffleArray(exercises);
         selectedExercises = shuffled.slice(0, Math.min(maxExercises, shuffled.length));
 
         // Estimate time per exercise based on duration

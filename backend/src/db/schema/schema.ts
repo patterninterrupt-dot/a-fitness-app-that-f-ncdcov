@@ -29,10 +29,3 @@ export const rewards = pgTable('rewards', {
   message: text('message').notNull(),
   earnedAt: timestamp('earned_at', { withTimezone: true }).defaultNow().notNull(),
 });
-
-export const workoutExercises = pgTable('workout_exercises', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  workoutId: uuid('workout_id').notNull().references(() => workouts.id, { onDelete: 'cascade' }),
-  exerciseId: uuid('exercise_id').notNull().references(() => exercises.id, { onDelete: 'cascade' }),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-});

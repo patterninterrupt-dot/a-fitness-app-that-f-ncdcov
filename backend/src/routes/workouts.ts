@@ -16,7 +16,6 @@ interface CreateWorkoutBody {
   duration: 30 | 45 | 60 | 90;
   category: 'upper' | 'lower' | 'conditioning';
   completedAt: string; // ISO8601 timestamp
-  exerciseIds: string[]; // Array of exercise IDs completed in this workout
 }
 
 export function registerWorkoutRoutes(app: App) {
@@ -29,13 +28,12 @@ export function registerWorkoutRoutes(app: App) {
       tags: ['workouts'],
       body: {
         type: 'object',
-        required: ['type', 'duration', 'category', 'completedAt', 'exerciseIds'],
+        required: ['type', 'duration', 'category', 'completedAt'],
         properties: {
           type: { type: 'string', enum: ['home', 'gym'] },
           duration: { type: 'number', enum: [30, 45, 60, 90] },
           category: { type: 'string', enum: ['upper', 'lower', 'conditioning'] },
           completedAt: { type: 'string', format: 'date-time' },
-          exerciseIds: { type: 'array', items: { type: 'string', format: 'uuid' } },
         },
       },
       response: {
@@ -82,10 +80,10 @@ export function registerWorkoutRoutes(app: App) {
     const session = await requireAuth(request, reply);
     if (!session) return;
 
-    const { type, duration, category, completedAt, exerciseIds } = request.body;
+    const { type, duration, category, completedAt } = request.body;
     const userId = session.user.id;
 
-    app.logger.info({ userId, type, duration, category, completedAt, exerciseCount: exerciseIds.length }, 'Creating workout');
+    app.logger.info({ userId, type, duration, category, completedAt }, 'Creating workout');
 
     try {
       const workoutData = {
@@ -98,17 +96,6 @@ export function registerWorkoutRoutes(app: App) {
 
       const [workout] = await app.db.insert(schema.workouts).values(workoutData).returning();
       app.logger.info({ workoutId: workout.id, userId }, 'Workout created successfully');
-
-      // Track exercises used in this workout for rotation
-      if (exerciseIds && exerciseIds.length > 0) {
-        const workoutExercises = exerciseIds.map((exerciseId) => ({
-          workoutId: workout.id,
-          exerciseId,
-        }));
-
-        await app.db.insert(schema.workoutExercises).values(workoutExercises);
-        app.logger.info({ workoutId: workout.id, exerciseCount: exerciseIds.length }, 'Workout exercises tracked');
-      }
 
       // Create reward
       const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];

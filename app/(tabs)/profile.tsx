@@ -69,6 +69,9 @@ export default function ProfileScreen() {
       const data = await apiGet<Exercise[]>('/api/exercises');
       setExercises(data);
       console.log('ProfileScreen: Loaded exercises', data.length);
+      
+      const exercisesWithVideo = data.filter(ex => ex.videoUrl).length;
+      console.log(`ProfileScreen: ${exercisesWithVideo} exercises have video demonstrations`);
     } catch (error) {
       console.error('ProfileScreen: Error loading exercises', error);
     } finally {
@@ -83,6 +86,7 @@ export default function ProfileScreen() {
   });
 
   const filteredCount = filteredExercises.length;
+  const videoCount = filteredExercises.filter(ex => ex.videoUrl).length;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -297,8 +301,13 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Results Count */}
-        <Text style={styles.resultsText}>{filteredCount} exercises available</Text>
+        {/* Results Count with Video Count */}
+        <View style={styles.resultsContainer}>
+          <Text style={styles.resultsText}>{filteredCount} exercises available</Text>
+          <Text style={styles.videoCountText}>
+            {videoCount} with video demonstrations
+          </Text>
+        </View>
 
         {/* Exercise List */}
         {loading ? (
@@ -466,12 +475,20 @@ const styles = StyleSheet.create({
   filterChipTextActive: {
     color: '#FFFFFF',
   },
+  resultsContainer: {
+    paddingHorizontal: 24,
+    marginBottom: 16,
+  },
   resultsText: {
     fontSize: 13,
     color: colors.textSecondary,
-    marginBottom: 16,
     fontWeight: '500',
-    paddingHorizontal: 24,
+  },
+  videoCountText: {
+    fontSize: 12,
+    color: colors.primary,
+    fontWeight: '600',
+    marginTop: 2,
   },
   loadingContainer: {
     paddingVertical: 80,

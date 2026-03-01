@@ -95,8 +95,7 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Ready is an Action</Text>
-          <Text style={styles.headerSubtitle}>Not a feeling. Choose your workout and start building consistency.</Text>
+          <Text style={styles.headerTitle}>Sometimes we just have to start, then everything else will follow. So, choose your workout below and soon, with a little consistency, you will have created a new habit!</Text>
         </View>
 
         {/* Workout Type Selection */}
@@ -286,52 +285,6 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Pattern Interrupt Section */}
-        <View style={styles.patternInterruptCard}>
-          <View style={styles.patternInterruptHeader}>
-            <IconSymbol
-              ios_icon_name="brain.head.profile"
-              android_material_icon_name="psychology"
-              size={28}
-              color={colors.primary}
-            />
-            <Text style={styles.patternInterruptTitle}>Interrupt the Pattern</Text>
-          </View>
-          <Text style={styles.patternInterruptSubtitle}>Break the thinking that keeps you stuck</Text>
-          <View style={styles.patternInterruptSteps}>
-            <View style={styles.patternStep}>
-              <View style={styles.patternStepNumber}>
-                <Text style={styles.patternStepNumberText}>1</Text>
-              </View>
-              <Text style={styles.patternStepText}>Notice the thought: "I'm not ready" or "I'll start tomorrow"</Text>
-            </View>
-            <View style={styles.patternStep}>
-              <View style={styles.patternStepNumber}>
-                <Text style={styles.patternStepNumberText}>2</Text>
-              </View>
-              <Text style={styles.patternStepText}>Name it: "That's just a pattern, not a fact"</Text>
-            </View>
-            <View style={styles.patternStep}>
-              <View style={styles.patternStepNumber}>
-                <Text style={styles.patternStepNumberText}>3</Text>
-              </View>
-              <Text style={styles.patternStepText}>Act anyway: Choose your workout below and start NOW</Text>
-            </View>
-          </View>
-          <View style={styles.patternInterruptQuote}>
-            <Text style={styles.patternInterruptQuoteText}>
-              "Ready is an action, not a feeling. You don't wait to feel ready — you act, and readiness follows."
-            </Text>
-          </View>
-        </View>
-
-        {/* Motivational Quote */}
-        <View style={styles.quoteCard}>
-          <Text style={styles.quoteText}>
-            "Consistency over intensity. Show up, do the work, build the habit."
-          </Text>
-        </View>
-
         {/* Start Button */}
         <TouchableOpacity style={styles.startButton} onPress={handleStartWorkout}>
           <Text style={styles.startButtonText}>Start Workout</Text>
@@ -485,10 +438,11 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 17,
+    fontWeight: '600',
     color: colors.secondary,
-    marginBottom: 8,
+    lineHeight: 25,
+    letterSpacing: 0.2,
   },
   headerSubtitle: {
     fontSize: 15,
@@ -614,87 +568,6 @@ const styles = StyleSheet.create({
   },
   durationTextSelected: {
     color: colors.secondary,
-  },
-  patternInterruptCard: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 24,
-    borderWidth: 2,
-    borderColor: colors.primary,
-  },
-  patternInterruptHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 4,
-  },
-  patternInterruptTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.primary,
-  },
-  patternInterruptSubtitle: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    marginBottom: 16,
-    marginLeft: 38,
-  },
-  patternInterruptSteps: {
-    gap: 12,
-    marginBottom: 16,
-  },
-  patternStep: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
-  },
-  patternStepNumber: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexShrink: 0,
-    marginTop: 1,
-  },
-  patternStepNumberText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  patternStepText: {
-    flex: 1,
-    fontSize: 14,
-    color: colors.text,
-    lineHeight: 20,
-  },
-  patternInterruptQuote: {
-    backgroundColor: colors.highlight,
-    borderRadius: 10,
-    padding: 14,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
-  },
-  patternInterruptQuoteText: {
-    fontSize: 13,
-    fontStyle: 'italic',
-    color: colors.secondary,
-    lineHeight: 20,
-  },
-  quoteCard: {
-    backgroundColor: colors.primary,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 24,
-  },
-  quoteText: {
-    fontSize: 16,
-    fontStyle: 'italic',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    lineHeight: 24,
   },
   startButton: {
     backgroundColor: colors.primary,

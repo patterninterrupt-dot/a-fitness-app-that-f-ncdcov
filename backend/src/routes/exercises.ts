@@ -11,6 +11,19 @@ const motivationalMessages = [
   "You're building the habit! 🎯",
 ];
 
+/**
+ * Fisher-Yates shuffle algorithm for proper randomization
+ * Ensures truly random selection from an array
+ */
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 const exerciseLibrary = [
   // HOME - UPPER (25 exercises)
   { name: 'Push-ups', type: 'home', category: 'upper', description: 'Standard push-ups for chest and triceps', duration: '30s', videoUrl: 'https://www.youtube.com/watch?v=IODxDxX7oi4' },
@@ -285,8 +298,8 @@ export function registerExerciseRoutes(app: App) {
         const restBetweenRounds = 60; // 1 minute rest between rounds
 
         // Shuffle and pick up to 6 random exercises
-        const shuffled = exercises.sort(() => Math.random() - 0.5);
-        selectedExercises = shuffled.slice(0, Math.min(6, shuffled.length));
+        const shuffled = shuffleArray(exercises);
+        selectedExercises = shuffled.slice(0, Math.min(maxExercisesPerRound, shuffled.length));
 
         // Calculate how many rounds fit in the duration
         const totalTimePerRound = (selectedExercises.length * exerciseTimeWithRest) / 60; // convert to minutes
@@ -295,8 +308,7 @@ export function registerExerciseRoutes(app: App) {
 
         estimatedMinutes = Math.round(totalTimePerRound * rounds);
       } else {
-        // For gym workouts: estimate 4-5 minutes per exercise
-        // Select appropriate number of exercises based on duration
+        // For gym workouts: select appropriate number of exercises based on duration
         let exerciseCount: number;
         if (durationMinutes === 30) {
           exerciseCount = 6;
@@ -313,7 +325,8 @@ export function registerExerciseRoutes(app: App) {
           estimatedMinutes = 90;
         }
 
-        const shuffled = exercises.sort(() => Math.random() - 0.5);
+        // Shuffle and pick random exercises for the workout
+        const shuffled = shuffleArray(exercises);
         selectedExercises = shuffled.slice(0, Math.min(exerciseCount, shuffled.length));
       }
 

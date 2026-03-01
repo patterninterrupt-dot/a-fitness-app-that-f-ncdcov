@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   View,
@@ -11,6 +12,8 @@ import {
   ScrollView,
   Modal,
   SafeAreaView,
+  Image,
+  ImageSourcePropType,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,6 +21,13 @@ import { useRouter } from "expo-router";
 import { colors } from "@/styles/commonStyles";
 
 type Mode = "signin" | "signup";
+
+// Helper to resolve image sources (handles both local require() and remote URLs)
+function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
+  if (!source) return { uri: '' };
+  if (typeof source === 'string') return { uri: source };
+  return source as ImageSourcePropType;
+}
 
 export default function AuthScreen() {
   const router = useRouter();
@@ -92,6 +102,8 @@ export default function AuthScreen() {
     }
   };
 
+  const brandLogo = require('@/assets/images/73c0c96e-8497-4bac-8c89-5decec12a3cf.jpeg');
+
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* Error/Info Modal */}
@@ -124,10 +136,13 @@ export default function AuthScreen() {
             end={{ x: 1, y: 1 }}
             style={styles.hero}
           >
-            <Text style={styles.heroEmoji}>⚡</Text>
-            <Text style={styles.heroTitle}>Ready is an Action</Text>
+            <Image 
+              source={resolveImageSource(brandLogo)} 
+              style={styles.heroLogo}
+              resizeMode="contain"
+            />
             <Text style={styles.heroSubtitle}>
-              Not a feeling. Start building consistency today.
+              Ready is not a feeling, it&apos;s an action. You just took the first step by downloading this app, now take the next one and sign in below 👇
             </Text>
           </LinearGradient>
 
@@ -296,23 +311,17 @@ const styles = StyleSheet.create({
     paddingBottom: 48,
     paddingHorizontal: 32,
   },
-  heroEmoji: {
-    fontSize: 52,
-    marginBottom: 16,
-  },
-  heroTitle: {
-    fontSize: 32,
-    fontWeight: "800",
-    color: '#FFFFFF',
-    textAlign: "center",
-    marginBottom: 10,
-    letterSpacing: -0.5,
+  heroLogo: {
+    width: 120,
+    height: 120,
+    marginBottom: 24,
   },
   heroSubtitle: {
     fontSize: 16,
-    color: 'rgba(255,255,255,0.8)',
+    color: 'rgba(255,255,255,0.95)',
     textAlign: "center",
     lineHeight: 24,
+    fontWeight: '500',
   },
   content: {
     padding: 24,

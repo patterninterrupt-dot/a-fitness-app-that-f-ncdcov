@@ -1,6 +1,6 @@
 import type { App } from '../index.js';
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, gt, isNull } from 'drizzle-orm';
 import * as schema from '../db/schema/schema.js';
 
 const motivationalMessages = [
@@ -286,7 +286,62 @@ export function registerExerciseRoutes(app: App) {
         return reply.status(400).send({ error: 'No exercises found for the specified filters' });
       }
 
-      let selectedExercises: typeof exercises;
+      // Try to get recently used exercises if user is authenticated for rotation
+      let recentlyUsedExerciseIds: string[] = [];
+      let userId: string | undefined;
+
+      try {
+        // Try to get user ID from request if authenticated
+        userId = (request as any).user?.id;
+        if (!userId && (request as any).session) {
+          userId = (request as any).session.user?.id;
+        }
+      } catch {
+        // Silently fail if we can't get the user ID
+      }
+
+      if (userId) {
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+        app.logger.info({ userId, type, category }, 'Checking for recently used exercises');
+
+        try {
+          // Find exercises used in the last 7 days for this type and category
+          const recentExercises = await app.db
+            .select({ exerciseId: schema.workoutExercises.exerciseId })
+            .from(schema.workoutExercises)
+            .innerJoin(schema.workouts, eq(schema.workoutExercises.workoutId, schema.workouts.id))
+            .innerJoin(schema.exercises, eq(schema.workoutExercises.exerciseId, schema.exercises.id))
+            .where(and(
+              eq(schema.workouts.userId, userId),
+              eq(schema.exercises.type, type),
+              eq(schema.exercises.category, category),
+              gt(schema.workoutExercises.createdAt, sevenDaysAgo)
+            ));
+
+          recentlyUsedExerciseIds = recentExercises.map((r) => r.exerciseId);
+          app.logger.info({ userId, count: recentlyUsedExerciseIds.length }, 'Recently used exercises found');
+        } catch (error) {
+          app.logger.warn({ err: error, userId }, 'Failed to fetch recently used exercises, proceeding without rotation');
+        }
+      } else {
+        app.logger.debug('User not authenticated, exercise rotation skipped');
+      }
+
+      // Filter out recently used exercises
+      let availableExercises = exercises.filter((ex) => !recentlyUsedExerciseIds.includes(ex.id));
+
+      // If we don't have enough unused exercises, include some recently used ones
+      if (availableExercises.length < 6) {
+        app.logger.info(
+          { available: availableExercises.length, needed: 6 },
+          'Not enough unused exercises, including recently used ones'
+        );
+        const recentlyUsedExercises = exercises.filter((ex) => recentlyUsedExerciseIds.includes(ex.id));
+        availableExercises = [...availableExercises, ...recentlyUsedExercises];
+      }
+
+      let selectedExercises: typeof availableExercises;
       let estimatedMinutes: number;
       let rounds: number | undefined;
 
@@ -360,6 +415,41 @@ export function registerExerciseRoutes(app: App) {
       app.logger.info('Seeding exercise library');
       await app.db.insert(schema.exercises).values(exerciseLibrary);
       app.logger.info({ count: exerciseLibrary.length }, 'Exercise library seeded successfully');
+    }
+
+    // Update exercises with missing videoUrl values
+    try {
+      const exercisesWithoutVideo = await app.db
+        .select()
+        .from(schema.exercises)
+        .where(isNull(schema.exercises.videoUrl));
+
+      if (exercisesWithoutVideo.length > 0) {
+        app.logger.info({ count: exercisesWithoutVideo.length }, 'Found exercises missing video URLs, updating...');
+
+        for (const exercise of exercisesWithoutVideo) {
+          // Find matching exercise in library by name, type, and category
+          const libraryExercise = exerciseLibrary.find(
+            (lib) =>
+              lib.name === exercise.name &&
+              lib.type === exercise.type &&
+              lib.category === exercise.category
+          );
+
+          if (libraryExercise && libraryExercise.videoUrl) {
+            await app.db
+              .update(schema.exercises)
+              .set({ videoUrl: libraryExercise.videoUrl })
+              .where(eq(schema.exercises.id, exercise.id));
+
+            app.logger.debug({ exerciseName: exercise.name, videoUrl: libraryExercise.videoUrl }, 'Exercise video URL updated');
+          }
+        }
+
+        app.logger.info({ count: exercisesWithoutVideo.length }, 'Exercise video URLs updated successfully');
+      }
+    } catch (error) {
+      app.logger.warn({ err: error }, 'Failed to update exercise video URLs');
     }
   });
 }

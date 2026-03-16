@@ -352,8 +352,8 @@ export function registerExerciseRoutes(app: App) {
         const maxExercisesPerRound = 6;
         const restBetweenRounds = 60; // 1 minute rest between rounds
 
-        // Shuffle and pick up to 6 random exercises
-        const shuffled = shuffleArray(exercises);
+        // Shuffle and pick up to 6 random exercises from filtered pool
+        const shuffled = shuffleArray(availableExercises);
         selectedExercises = shuffled.slice(0, Math.min(maxExercisesPerRound, shuffled.length));
 
         // Calculate how many rounds fit in the duration
@@ -367,8 +367,8 @@ export function registerExerciseRoutes(app: App) {
         // This ensures variety while respecting the "max 6 separate exercises" rule
         const maxExercises = 6;
 
-        // Shuffle and pick exactly 6 random exercises
-        const shuffled = shuffleArray(exercises);
+        // Shuffle and pick exactly 6 random exercises from filtered pool
+        const shuffled = shuffleArray(availableExercises);
         selectedExercises = shuffled.slice(0, Math.min(maxExercises, shuffled.length));
 
         // Estimate time per exercise based on duration

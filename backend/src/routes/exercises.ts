@@ -185,6 +185,50 @@ const exerciseLibrary = [
   { name: 'Incline Treadmill Walk', type: 'gym', category: 'conditioning', description: 'Incline treadmill walking', duration: '10 min', videoUrl: 'https://www.youtube.com/watch?v=ZkqwVqvuYNY' },
 ];
 
+// Additional exercises to expand the pool
+const additionalExercises = [
+  // GYM - UPPER (12 exercises)
+  { name: 'Cable Flyes', type: 'gym', category: 'upper', sets: '3', reps: '12-15', description: JSON.stringify({ restSeconds: 60, muscleGroup: 'Chest', instructions: 'Stand between cables, bring handles together in front of chest with slight elbow bend' }), videoUrl: 'https://www.youtube.com/watch?v=pFAJRs91dt0' },
+  { name: 'Incline Dumbbell Press', type: 'gym', category: 'upper', sets: '3', reps: '10-12', description: JSON.stringify({ restSeconds: 90, muscleGroup: 'Upper Chest', instructions: 'Set bench to 30-45 degrees, press dumbbells up from chest level' }), videoUrl: 'https://www.youtube.com/watch?v=DbLWScEPv7I' },
+  { name: 'Face Pulls', type: 'gym', category: 'upper', sets: '3', reps: '15-20', description: JSON.stringify({ restSeconds: 60, muscleGroup: 'Rear Delts', instructions: 'Pull rope attachment to face level, flare elbows out to sides' }), videoUrl: 'https://www.youtube.com/watch?v=rep-qVOkYSc' },
+  { name: 'Seated Cable Row', type: 'gym', category: 'upper', sets: '3', reps: '10-12', description: JSON.stringify({ restSeconds: 90, muscleGroup: 'Back', instructions: 'Sit upright, pull handle to lower chest keeping elbows close to body' }), videoUrl: 'https://www.youtube.com/watch?v=5P0-pAJ-p5s' },
+  { name: 'Shrugs', type: 'gym', category: 'upper', sets: '3', reps: '15-20', description: JSON.stringify({ restSeconds: 60, muscleGroup: 'Traps', instructions: 'Hold heavy dumbbells or barbell, shrug shoulders straight up and hold briefly' }), videoUrl: 'https://www.youtube.com/watch?v=Q2IKwF1B3i4' },
+  { name: 'Chest Dips', type: 'gym', category: 'upper', sets: '3', reps: '8-12', description: JSON.stringify({ restSeconds: 90, muscleGroup: 'Chest', instructions: 'Lean forward slightly on dip bars, lower until chest is at bar level' }), videoUrl: 'https://www.youtube.com/watch?v=tzrYlHIiPRk' },
+  { name: 'Preacher Curls', type: 'gym', category: 'upper', sets: '3', reps: '10-12', description: JSON.stringify({ restSeconds: 90, muscleGroup: 'Biceps', instructions: 'Rest upper arms on preacher pad, curl barbell up fully squeezing at top' }), videoUrl: 'https://www.youtube.com/watch?v=psM3bVuVRu4' },
+
+  // GYM - LOWER (12 exercises)
+  { name: 'Hip Thrusts', type: 'gym', category: 'lower', sets: '3', reps: '12-15', description: JSON.stringify({ restSeconds: 90, muscleGroup: 'Glutes', instructions: 'Upper back on bench, barbell on hips, drive hips up squeezing glutes at top' }), videoUrl: 'https://www.youtube.com/watch?v=wPM8icPYGQo' },
+  { name: 'Hack Squats', type: 'gym', category: 'lower', sets: '3', reps: '10-12', description: JSON.stringify({ restSeconds: 90, muscleGroup: 'Quads', instructions: 'On hack squat machine, lower until thighs are parallel, drive through heels' }), videoUrl: 'https://www.youtube.com/watch?v=F1d7HqmMSUU' },
+  { name: 'Calf Raises', type: 'gym', category: 'lower', sets: '4', reps: '15-20', description: JSON.stringify({ restSeconds: 60, muscleGroup: 'Calves', instructions: 'Stand on edge of platform, raise heels as high as possible, lower slowly' }), videoUrl: 'https://www.youtube.com/watch?v=zKDRMh0p3G0' },
+  { name: 'Goblet Squats', type: 'gym', category: 'lower', sets: '3', reps: '12-15', description: JSON.stringify({ restSeconds: 60, muscleGroup: 'Quads/Glutes', instructions: 'Hold dumbbell at chest, squat deep keeping elbows inside knees' }), videoUrl: 'https://www.youtube.com/watch?v=eoOUqRu0V-w' },
+  { name: 'Front Squats', type: 'gym', category: 'lower', sets: '3', reps: '8-10', description: JSON.stringify({ restSeconds: 120, muscleGroup: 'Quads', instructions: 'Bar rests on front delts, elbows high, squat deep keeping torso upright' }), videoUrl: 'https://www.youtube.com/watch?v=qf3bCRjSHkU' },
+  { name: 'Reverse Lunges', type: 'gym', category: 'lower', sets: '3', reps: '12 each', description: JSON.stringify({ restSeconds: 60, muscleGroup: 'Quads/Glutes', instructions: 'Step backward into lunge, lower back knee toward floor, return to start' }), videoUrl: 'https://www.youtube.com/watch?v=F1wVx-yqCaI' },
+
+  // GYM - CONDITIONING (12 exercises)
+  { name: 'Sled Push', type: 'gym', category: 'conditioning', sets: '4', reps: '20m', description: JSON.stringify({ restSeconds: 90, muscleGroup: 'Full Body', instructions: 'Load sled, drive forward with powerful leg pushes keeping low body position' }), videoUrl: 'https://www.youtube.com/watch?v=tVDKW9I0tXc' },
+  { name: 'Medicine Ball Slams', type: 'gym', category: 'conditioning', sets: '4', reps: '12-15', description: JSON.stringify({ restSeconds: 60, muscleGroup: 'Full Body', instructions: 'Raise ball overhead, slam down with full force, catch on bounce' }), videoUrl: 'https://www.youtube.com/watch?v=_sL-Y3BRH8I' },
+  { name: 'Tire Flips', type: 'gym', category: 'conditioning', sets: '4', reps: '8-10', description: JSON.stringify({ restSeconds: 90, muscleGroup: 'Full Body', instructions: 'Squat under tire, drive up with legs, push tire over as it rises' }), videoUrl: 'https://www.youtube.com/watch?v=6ZkB2GX3qfk' },
+  { name: 'Farmer\'s Carry', type: 'gym', category: 'conditioning', sets: '4', reps: '30m', description: JSON.stringify({ restSeconds: 90, muscleGroup: 'Full Body', instructions: 'Hold heavy weights at sides, walk with upright posture and controlled steps' }), videoUrl: 'https://www.youtube.com/watch?v=dVWGH3BVJn0' },
+
+  // HOME - UPPER (12 exercises)
+  { name: 'Resistance Band Rows', type: 'home', category: 'upper', sets: '3', reps: '12-15', description: JSON.stringify({ restSeconds: 60, muscleGroup: 'Back', instructions: 'Anchor band at chest height, pull handles to sides squeezing shoulder blades' }), videoUrl: 'https://www.youtube.com/watch?v=0nWGQIWlKX8' },
+  { name: 'Resistance Band Curls', type: 'home', category: 'upper', sets: '3', reps: '12-15', description: JSON.stringify({ restSeconds: 60, muscleGroup: 'Biceps', instructions: 'Stand on band, curl handles up to shoulders keeping elbows at sides' }), videoUrl: 'https://www.youtube.com/watch?v=4CLhkVWW5Ck' },
+  { name: 'Inverted Rows', type: 'home', category: 'upper', sets: '3', reps: '10-12', description: JSON.stringify({ restSeconds: 90, muscleGroup: 'Back', instructions: 'Under a table or bar, pull chest up to bar keeping body straight' }), videoUrl: 'https://www.youtube.com/watch?v=OISfp89drwA' },
+  { name: 'Superman Hold', type: 'home', category: 'upper', sets: '3', reps: '10-12', description: JSON.stringify({ restSeconds: 60, muscleGroup: 'Lower Back', instructions: 'Lie face down, raise arms and legs simultaneously, hold 2 seconds at top' }), videoUrl: 'https://www.youtube.com/watch?v=ayPxJUFsj_0' },
+
+  // HOME - LOWER (12 exercises)
+  { name: 'Single-leg Glute Bridge', type: 'home', category: 'lower', sets: '3', reps: '12-15 each', description: JSON.stringify({ restSeconds: 60, muscleGroup: 'Glutes', instructions: 'Lie on back, one leg extended, drive hip up through planted heel' }), videoUrl: 'https://www.youtube.com/watch?v=d0Soa8O2lFI' },
+  { name: 'Pistol Squat Progression', type: 'home', category: 'lower', sets: '3', reps: '8-10 each', description: JSON.stringify({ restSeconds: 90, muscleGroup: 'Quads/Glutes', instructions: 'Hold onto support if needed, extend one leg forward, squat on other leg' }), videoUrl: 'https://www.youtube.com/watch?v=6IXLQ7JVYX8' },
+  { name: 'Lateral Lunges', type: 'home', category: 'lower', sets: '3', reps: '10-12 each', description: JSON.stringify({ restSeconds: 60, muscleGroup: 'Quads/Glutes', instructions: 'Step wide to side, bend that knee while keeping other leg straight' }), videoUrl: 'https://www.youtube.com/watch?v=fIxj8s0pLh8' },
+  { name: 'Donkey Kicks', type: 'home', category: 'lower', sets: '3', reps: '15 each', description: JSON.stringify({ restSeconds: 60, muscleGroup: 'Glutes', instructions: 'On all fours, kick one leg back and up keeping knee bent, squeeze glute at top' }), videoUrl: 'https://www.youtube.com/watch?v=d_Yrwk8FitzF8' },
+
+  // HOME - CONDITIONING (12 exercises)
+  { name: 'Speed Skaters', type: 'home', category: 'conditioning', sets: '3', reps: '20 total', description: JSON.stringify({ restSeconds: 60, muscleGroup: 'Legs/Cardio', instructions: 'Leap side to side landing on one foot, swing arms like a speed skater' }), videoUrl: 'https://www.youtube.com/watch?v=LWa5l33mYbg' },
+  { name: 'Tuck Jumps', type: 'home', category: 'conditioning', sets: '3', reps: '10-12', description: JSON.stringify({ restSeconds: 90, muscleGroup: 'Legs/Cardio', instructions: 'Jump up pulling knees to chest at peak, land softly and immediately repeat' }), videoUrl: 'https://www.youtube.com/watch?v=jLVvN3hKRvk' },
+  { name: 'Inchworms', type: 'home', category: 'conditioning', sets: '3', reps: '10-12', description: JSON.stringify({ restSeconds: 60, muscleGroup: 'Full Body', instructions: 'Hinge at hips, walk hands out to push-up position, walk feet back to hands' }), videoUrl: 'https://www.youtube.com/watch?v=aMWpXPRPcyY' },
+  { name: 'Lateral Shuffles', type: 'home', category: 'conditioning', sets: '4', reps: '30 seconds', description: JSON.stringify({ restSeconds: 60, muscleGroup: 'Legs/Cardio', instructions: 'Athletic stance, shuffle quickly side to side touching floor at each end' }), videoUrl: 'https://www.youtube.com/watch?v=aYH3PQsn9Jc' },
+];
+
 export function registerExerciseRoutes(app: App) {
   // GET /api/exercises - Return all exercises
   app.fastify.get('/api/exercises', {
@@ -218,10 +262,10 @@ export function registerExerciseRoutes(app: App) {
     return exercises;
   });
 
-  // GET /api/exercises/:type/:category/:duration - Get exercises matched to duration
+  // GET /api/exercises/:type/:category/:duration - Get 6 exercises with rotation
   app.fastify.get('/api/exercises/:type/:category/:duration', {
     schema: {
-      description: 'Get exercises for a workout matched to selected duration',
+      description: 'Get 6 random exercises matching the requested type/category, with rotation filtering if authenticated',
       tags: ['exercises'],
       params: {
         type: 'object',
@@ -234,28 +278,20 @@ export function registerExerciseRoutes(app: App) {
       },
       response: {
         200: {
-          type: 'object',
-          properties: {
-            exercises: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  id: { type: 'string', format: 'uuid' },
-                  name: { type: 'string' },
-                  type: { type: 'string' },
-                  category: { type: 'string' },
-                  description: { type: 'string' },
-                  reps: { type: ['string', 'null'] },
-                  sets: { type: ['string', 'null'] },
-                  duration: { type: ['string', 'null'] },
-                  videoUrl: { type: ['string', 'null'] },
-                  estimatedMinutes: { type: 'number' },
-                },
-              },
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', format: 'uuid' },
+              name: { type: 'string' },
+              type: { type: 'string' },
+              category: { type: 'string' },
+              sets: { type: ['string', 'null'] },
+              reps: { type: ['string', 'null'] },
+              restSeconds: { type: 'number' },
+              muscleGroup: { type: 'string' },
+              instructions: { type: 'string' },
             },
-            totalEstimatedMinutes: { type: 'number' },
-            rounds: { type: ['number', 'null'], description: 'Only present for home/circuit workouts' },
           },
         },
         400: {
@@ -268,12 +304,12 @@ export function registerExerciseRoutes(app: App) {
     },
   }, async (request: FastifyRequest<{ Params: { type: string; category: string; duration: string } }>, reply: FastifyReply) => {
     const { type, category, duration } = request.params;
-    const durationMinutes = parseInt(duration, 10);
 
-    app.logger.info({ type, category, durationMinutes }, 'Fetching exercises for duration');
+    app.logger.info({ type, category, duration }, 'Fetching exercises');
 
     try {
-      const exercises = await app.db
+      // Get all exercises matching type and category
+      const allExercises = await app.db
         .select()
         .from(schema.exercises)
         .where(and(
@@ -281,34 +317,35 @@ export function registerExerciseRoutes(app: App) {
           eq(schema.exercises.category, category)
         ));
 
-      if (exercises.length === 0) {
-        app.logger.warn({ type, category }, 'No exercises found for filters');
+      if (allExercises.length === 0) {
+        app.logger.warn({ type, category }, 'No exercises found');
         return reply.status(400).send({ error: 'No exercises found for the specified filters' });
       }
 
-      // Try to get recently used exercises if user is authenticated for rotation
-      let recentlyUsedExerciseIds: string[] = [];
+      // Try to get user ID from request
       let userId: string | undefined;
-
       try {
-        // Try to get user ID from request if authenticated
         userId = (request as any).user?.id;
         if (!userId && (request as any).session) {
           userId = (request as any).session.user?.id;
         }
       } catch {
-        // Silently fail if we can't get the user ID
+        // Silently fail if we can't get user ID
       }
 
+      let pool = allExercises;
+
+      // If authenticated, filter out recently used exercises
       if (userId) {
         const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-        app.logger.info({ userId, type, category }, 'Checking for recently used exercises');
-
         try {
-          // Find exercises used in the last 7 days for this type and category
-          const recentExercises = await app.db
-            .select({ exerciseId: schema.workoutExercises.exerciseId })
+          // Get recently used exercise IDs with their completion dates
+          const recentUsage = await app.db
+            .select({
+              exerciseId: schema.workoutExercises.exerciseId,
+              completedAt: schema.workouts.completedAt,
+            })
             .from(schema.workoutExercises)
             .innerJoin(schema.workouts, eq(schema.workoutExercises.workoutId, schema.workouts.id))
             .innerJoin(schema.exercises, eq(schema.workoutExercises.exerciseId, schema.exercises.id))
@@ -319,91 +356,65 @@ export function registerExerciseRoutes(app: App) {
               gt(schema.workoutExercises.createdAt, sevenDaysAgo)
             ));
 
-          recentlyUsedExerciseIds = recentExercises.map((r) => r.exerciseId);
-          app.logger.info({ userId, count: recentlyUsedExerciseIds.length }, 'Recently used exercises found');
+          const recentlyUsedIds = new Set(recentUsage.map((r) => r.exerciseId));
+          const recentUsageMap = new Map(recentUsage.map((r) => [r.exerciseId, r.completedAt]));
+
+          // Filter to only unused exercises
+          let filtered = allExercises.filter((ex) => !recentlyUsedIds.has(ex.id));
+
+          // If not enough unused exercises, add least recently used
+          if (filtered.length < 6) {
+            const recentlyUsed = allExercises.filter((ex) => recentlyUsedIds.has(ex.id));
+            // Sort by oldest usage first
+            recentlyUsed.sort((a, b) => {
+              const dateA = recentUsageMap.get(a.id) || new Date(0);
+              const dateB = recentUsageMap.get(b.id) || new Date(0);
+              return dateA.getTime() - dateB.getTime();
+            });
+            filtered = [...filtered, ...recentlyUsed];
+          }
+
+          pool = filtered;
+          app.logger.info({ userId, filtered: pool.length, total: allExercises.length }, 'Applied exercise rotation');
         } catch (error) {
-          app.logger.warn({ err: error, userId }, 'Failed to fetch recently used exercises, proceeding without rotation');
+          app.logger.warn({ err: error }, 'Failed to apply rotation, using full pool');
+          pool = allExercises;
         }
-      } else {
-        app.logger.debug('User not authenticated, exercise rotation skipped');
       }
 
-      // Filter out recently used exercises
-      let availableExercises = exercises.filter((ex) => !recentlyUsedExerciseIds.includes(ex.id));
+      // Shuffle the pool and select 6
+      const shuffled = shuffleArray(pool);
+      const selected = shuffled.slice(0, 6);
 
-      // If we don't have enough unused exercises, include some recently used ones
-      if (availableExercises.length < 6) {
-        app.logger.info(
-          { available: availableExercises.length, needed: 6 },
-          'Not enough unused exercises, including recently used ones'
-        );
-        const recentlyUsedExercises = exercises.filter((ex) => recentlyUsedExerciseIds.includes(ex.id));
-        availableExercises = [...availableExercises, ...recentlyUsedExercises];
-      }
+      // Parse description JSON and format response
+      const formatted = selected.map((ex) => {
+        let parsed = { restSeconds: 60, muscleGroup: '', instructions: '' };
+        try {
+          if (ex.description) {
+            parsed = JSON.parse(ex.description);
+          }
+        } catch {
+          // If JSON parsing fails, use the raw description as instructions
+          parsed.instructions = ex.description || '';
+        }
 
-      let selectedExercises: typeof availableExercises;
-      let estimatedMinutes: number;
-      let rounds: number | undefined;
+        return {
+          id: ex.id,
+          name: ex.name,
+          type: ex.type,
+          category: ex.category,
+          sets: ex.sets || null,
+          reps: ex.reps || null,
+          restSeconds: parsed.restSeconds || 60,
+          muscleGroup: parsed.muscleGroup || '',
+          instructions: parsed.instructions || '',
+        };
+      });
 
-      if (type === 'home') {
-        // For home/circuit workouts: each exercise is 30s, with 10s rest = 40s per exercise
-        // Max 6 exercises per circuit, can do multiple rounds
-        const exerciseTimeWithRest = 40; // 30s exercise + 10s rest
-        const maxExercisesPerRound = 6;
-        const restBetweenRounds = 60; // 1 minute rest between rounds
-
-        // Shuffle and pick up to 6 random exercises from filtered pool
-        const shuffled = shuffleArray(availableExercises);
-        selectedExercises = shuffled.slice(0, Math.min(maxExercisesPerRound, shuffled.length));
-
-        // Calculate how many rounds fit in the duration
-        const totalTimePerRound = (selectedExercises.length * exerciseTimeWithRest) / 60; // convert to minutes
-        const timeWithRestBetweenRounds = totalTimePerRound + (restBetweenRounds / 60);
-        rounds = Math.max(1, Math.floor(durationMinutes / timeWithRestBetweenRounds));
-
-        estimatedMinutes = Math.round(totalTimePerRound * rounds);
-      } else {
-        // For gym workouts: ALWAYS 6 exercises max, adjust time per exercise based on duration
-        // This ensures variety while respecting the "max 6 separate exercises" rule
-        const maxExercises = 6;
-
-        // Shuffle and pick exactly 6 random exercises from filtered pool
-        const shuffled = shuffleArray(availableExercises);
-        selectedExercises = shuffled.slice(0, Math.min(maxExercises, shuffled.length));
-
-        // Estimate time per exercise based on duration
-        // This accounts for multiple sets/reps within the same exercise
-        estimatedMinutes = durationMinutes;
-
-        // Don't return rounds for gym workouts
-        rounds = undefined;
-      }
-
-      // Add estimated minutes per exercise
-      const estimatedMinutesPerExercise = estimatedMinutes / selectedExercises.length;
-      const exercisesWithTiming = selectedExercises.map((ex) => ({
-        ...ex,
-        estimatedMinutes: Math.round(estimatedMinutesPerExercise * 10) / 10, // Round to 1 decimal place
-      }));
-
-      app.logger.info(
-        { count: selectedExercises.length, type, category, durationMinutes, estimatedMinutes, rounds },
-        'Exercises retrieved successfully'
-      );
-
-      const response: any = {
-        exercises: exercisesWithTiming,
-        totalEstimatedMinutes: estimatedMinutes,
-      };
-
-      // Only include rounds for home/circuit workouts
-      if (type === 'home' && rounds !== undefined) {
-        response.rounds = rounds;
-      }
-
-      return response;
+      app.logger.info({ count: selected.length }, 'Exercises retrieved successfully');
+      return formatted;
     } catch (error) {
-      app.logger.error({ err: error, type, category, durationMinutes }, 'Failed to fetch exercises');
+      app.logger.error({ err: error, type, category }, 'Failed to fetch exercises');
       throw error;
     }
   });
@@ -415,6 +426,28 @@ export function registerExerciseRoutes(app: App) {
       app.logger.info('Seeding exercise library');
       await app.db.insert(schema.exercises).values(exerciseLibrary);
       app.logger.info({ count: exerciseLibrary.length }, 'Exercise library seeded successfully');
+    }
+
+    // Insert additional exercises (skip if already exists by name+type+category)
+    try {
+      for (const exercise of additionalExercises) {
+        const existing = await app.db
+          .select()
+          .from(schema.exercises)
+          .where(and(
+            eq(schema.exercises.name, exercise.name),
+            eq(schema.exercises.type, exercise.type),
+            eq(schema.exercises.category, exercise.category)
+          ))
+          .limit(1);
+
+        if (existing.length === 0) {
+          await app.db.insert(schema.exercises).values(exercise);
+        }
+      }
+      app.logger.info({ count: additionalExercises.length }, 'Additional exercises seeded');
+    } catch (error) {
+      app.logger.warn({ err: error }, 'Failed to seed additional exercises');
     }
 
     // Update exercises with missing videoUrl values

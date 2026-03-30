@@ -40,17 +40,13 @@ describe("API Integration Tests", () => {
     test("GET /api/exercises/{type}/{category}/{duration} - Get exercises for valid params", async () => {
       const res = await api("/api/exercises/home/upper/30");
       await expectStatus(res, 200);
-      const data = await res.json();
-      expect(data).toHaveProperty("exercises");
-      expect(Array.isArray(data.exercises)).toBe(true);
-      expect(data).toHaveProperty("totalEstimatedMinutes");
-      expect(data).toHaveProperty("rounds");
-      expect(typeof data.totalEstimatedMinutes).toBe("number");
-      // rounds can be null or number
-      expect(data.rounds === null || typeof data.rounds === "number").toBe(true);
-      if (data.exercises.length > 0) {
-        expect(data.exercises[0]).toHaveProperty("id");
-        expect(data.exercises[0]).toHaveProperty("name");
+      const exercises = await res.json();
+      expect(Array.isArray(exercises)).toBe(true);
+      if (exercises.length > 0) {
+        expect(exercises[0]).toHaveProperty("id");
+        expect(exercises[0]).toHaveProperty("name");
+        expect(exercises[0]).toHaveProperty("type");
+        expect(exercises[0]).toHaveProperty("category");
       }
     });
 
@@ -78,44 +74,37 @@ describe("API Integration Tests", () => {
     test("GET /api/exercises/{type}/{category}/{duration} - Gym/Lower/60", async () => {
       const res = await api("/api/exercises/gym/lower/60");
       await expectStatus(res, 200);
-      const data = await res.json();
-      expect(data).toHaveProperty("exercises");
-      expect(Array.isArray(data.exercises)).toBe(true);
+      const exercises = await res.json();
+      expect(Array.isArray(exercises)).toBe(true);
     });
 
     test("GET /api/exercises/{type}/{category}/{duration} - Home/Conditioning/45", async () => {
       const res = await api("/api/exercises/home/conditioning/45");
       await expectStatus(res, 200);
-      const data = await res.json();
-      expect(data).toHaveProperty("exercises");
-      expect(Array.isArray(data.exercises)).toBe(true);
+      const exercises = await res.json();
+      expect(Array.isArray(exercises)).toBe(true);
     });
 
     test("GET /api/exercises/{type}/{category}/{duration} - Gym/Upper/90", async () => {
       const res = await api("/api/exercises/gym/upper/90");
       await expectStatus(res, 200);
-      const data = await res.json();
-      expect(data).toHaveProperty("exercises");
-      expect(Array.isArray(data.exercises)).toBe(true);
+      const exercises = await res.json();
+      expect(Array.isArray(exercises)).toBe(true);
     });
 
     test("GET /api/exercises/{type}/{category}/{duration} - Gym/Conditioning/60", async () => {
       const res = await api("/api/exercises/gym/conditioning/60");
       await expectStatus(res, 200);
-      const data = await res.json();
-      expect(data).toHaveProperty("exercises");
-      expect(Array.isArray(data.exercises)).toBe(true);
-      expect(data).toHaveProperty("totalEstimatedMinutes");
-      expect(typeof data.totalEstimatedMinutes).toBe("number");
-      // Gym workouts should have max 6 exercises
-      expect(data.exercises.length).toBeLessThanOrEqual(6);
+      const exercises = await res.json();
+      expect(Array.isArray(exercises)).toBe(true);
+      expect(exercises.length).toBeLessThanOrEqual(6);
     });
 
     test("Get exercise IDs for workout tests", async () => {
       const res = await api("/api/exercises/home/upper/30");
       await expectStatus(res, 200);
-      const data = await res.json();
-      exerciseIds = data.exercises.map((ex: any) => ex.id);
+      const exercises = await res.json();
+      exerciseIds = exercises.map((ex: any) => ex.id);
       expect(exerciseIds.length).toBeGreaterThan(0);
     });
   });

@@ -16,6 +16,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { WidgetProvider } from "@/contexts/WidgetContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import ErrorBoundary from "@/components/ErrorBoundary";
 // Note: Error logging is auto-initialized via index.ts import
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -56,17 +57,17 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const networkState = useNetworkState();
-  const [loaded] = useFonts({
+  const [loaded, fontError] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
   useEffect(() => {
-    if (loaded) {
+    if (loaded || fontError) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [loaded, fontError]);
 
-  if (!loaded) {
+  if (!loaded && !fontError) {
     return null;
   }
 
@@ -95,7 +96,7 @@ export default function RootLayout() {
     },
   };
   return (
-    <>
+    <ErrorBoundary>
       <StatusBar style="auto" animated />
         <ThemeProvider
           value={colorScheme === "dark" ? CustomDarkTheme : CustomDefaultTheme}
@@ -122,6 +123,6 @@ export default function RootLayout() {
             </WidgetProvider>
           </AuthProvider>
         </ThemeProvider>
-    </>
+    </ErrorBoundary>
   );
 }

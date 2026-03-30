@@ -37,6 +37,15 @@ interface WorkoutResponse {
   rounds?: number;
 }
 
+function fisherYatesShuffle<T>(array: T[]): T[] {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 function getEmbedUrl(videoUrl: string): string {
   const ytMatch = videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
   if (ytMatch) {
@@ -104,7 +113,7 @@ export default function WorkoutScreen() {
         roundsCount = data.rounds;
       }
 
-      setExercises(exerciseList);
+      setExercises(fisherYatesShuffle(exerciseList));
       setTotalEstimatedMinutes(totalMinutes);
       setRounds(roundsCount);
       
@@ -339,7 +348,7 @@ export default function WorkoutScreen() {
               <View
                 style={[
                   styles.progressFill,
-                  { width: `${(completedCount / totalCount) * 100}%` },
+                  { width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%` },
                 ]}
               />
             </View>

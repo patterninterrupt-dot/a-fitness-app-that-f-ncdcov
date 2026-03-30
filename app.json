@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "a-fitness-app-that-f",
-    "slug": "a-fitness-app-that-f",
+    "name": "Pattern Interrupt Training",
+    "slug": "pattern-interrupt-training",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/app-icon-iqb.png",
@@ -36,7 +36,7 @@
       "expo-router",
       "expo-web-browser"
     ],
-    "scheme": "afitnessappthatf",
+    "scheme": "patterninterrupttraining",
     "experiments": {
       "typedRoutes": true
     },
